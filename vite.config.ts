@@ -14,7 +14,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: { console: resolve(root, 'index.html'), worker: resolve(root, 'worker.html') },
+      input: { console: resolve(root, 'index.html'), worker: resolve(root, 'worker.html'), landing: resolve(root, 'landing.html') },
     },
   },
 });
