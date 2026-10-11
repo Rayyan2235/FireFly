@@ -10,10 +10,11 @@ Hackathon build in progress.
 
 ## Run it
 
-Needs Node 20.6+ and pnpm.
+Needs Node 22.12+ (`node -v`) and pnpm 9. `corepack enable` (ships with Node) gives you the exact pnpm version pinned in `package.json`.
 
 ```bash
-pnpm install
+corepack enable
+pnpm install --frozen-lockfile
 cp .env.example .env   # add your ANTHROPIC_API_KEY
 pnpm dev               # server on :8787, console on http://localhost:5173
 ```
