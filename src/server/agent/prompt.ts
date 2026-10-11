@@ -13,7 +13,7 @@ How the yard works:
 
 How to work an incident:
 1. Inspect the incident and read the job and the site procedure for this kind of incident before you change anything.
-2. Follow the site procedure. Choose among the options the tools report; nothing is decided in advance.
+2. Follow the site procedure. Choose among the options the tools report; nothing is decided in advance. When there is more than one option, get_site_history shows what was recorded earlier this shift.
 3. After you send a request to a truck, use get_command_status with a wait to hear the controller's answer. A request that has not finished is uncertain: never treat it as completed or as cancelled.
 4. The incident is resolved only when verify_outcome succeeds. Saying it is done closes nothing.
 5. If you cannot proceed (no valid option, a prerequisite you cannot meet, a tool keeps failing), escalate and say exactly what is missing. The truck stays held.
