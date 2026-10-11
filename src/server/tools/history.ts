@@ -82,17 +82,27 @@ export const getSiteHistory: Tool = {
   name: 'get_site_history',
   kind: 'read',
   description:
-    'Recorded outcomes from this shift, so a decision can use what already happened: doors closed or lost to another truck, how long workers took to clear obstructions, equipment outages and supervisor rules, and how earlier incidents ended. Facts only, each with the number of the event it came from. Use it when you are choosing between options.',
-  input_schema: schema({ scope: { type: 'string', enum: Object.keys(SCOPES), description: 'Which records to read.' } }),
-  run({ world }, input) {
+    'Recorded outcomes, so a decision can use what already happened. This shift: doors closed or lost to another truck, how long workers took to clear obstructions, equipment outages and supervisor rules, and how earlier incidents ended, each with the number of the event it came from. Scope earlier_shifts: counts and averages from every shift recorded before this one. Facts only. Use it when you are choosing between options.',
+  input_schema: schema({ scope: { type: 'string', enum: [...Object.keys(SCOPES), 'earlier_shifts'], description: 'Which records to read.' } }),
+  async run({ world, memory }, input) {
+    if (text(input, 'scope') === 'earlier_shifts') {
+      if (!memory) return ok('No record of earlier shifts is connected.', { scope: 'earlier_shifts', shifts_on_record: 0 });
+      const record = await memory();
+      return ok(`Recorded outcomes from ${record.shifts_on_record} earlier ${record.shifts_on_record === 1 ? 'shift' : 'shifts'}.`, { scope: 'earlier_shifts', ...record });
+    }
     const scope = text(input, 'scope') as keyof typeof SCOPES;
     const facts = SCOPES[scope]?.(currentRun(world.since(0))) ?? [];
     // Rules saved before a reset still apply, so they are listed even when their event is from an earlier run.
     const rules = scope === 'equipment' ? world.state.corrections.filter((c) => c.active).map((c) => ({ subject: c.subject, fact: c.fact, source: c.source, release_condition: c.releaseCondition })) : undefined;
-    return ok(facts.length ? `${facts.length} recorded ${facts.length === 1 ? 'fact' : 'facts'} about ${scope} this shift.` : `Nothing recorded about ${scope} yet this shift.`, {
+    // With a flight recorder connected, the same question is also answered from every earlier shift.
+    const earlier = memory && scope !== 'equipment' ? await memory().catch(() => null) : null;
+    const before = earlier && Number(earlier.shifts_on_record) > 0 ? { shifts_on_record: earlier.shifts_on_record, [scope]: earlier[scope] } : undefined;
+    const now = facts.length ? `${facts.length} recorded ${facts.length === 1 ? 'fact' : 'facts'} about ${scope} this shift.` : `Nothing recorded about ${scope} yet this shift.`;
+    return ok(before ? `${now} Plus the record of ${before.shifts_on_record} earlier ${before.shifts_on_record === 1 ? 'shift' : 'shifts'}.` : now, {
       scope,
       facts,
       ...(rules ? { rules_in_force: rules } : {}),
+      ...(before ? { earlier_shifts: before } : {}),
     });
   },
 };

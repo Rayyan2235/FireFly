@@ -14,6 +14,8 @@ export interface ToolContext {
   contention?: Contention;
   /** The supervisor note this run was last told about. Only a note gives authority to save a correction. */
   note?: { from: string; text: string; seq: number };
+  /** Outcomes recorded in earlier shifts, when a flight recorder is connected. */
+  memory?: () => Promise<Record<string, unknown>>;
   /** Tells another incident's agent that something it depends on changed. */
   wake?: (incidentId: string, observation: string) => void;
 }

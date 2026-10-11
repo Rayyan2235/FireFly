@@ -10,6 +10,7 @@ import { Contention } from './contention.ts';
 import { Dispatch } from './dispatch.ts';
 import { openClearance, openIncident } from './incidents.ts';
 import { DEMO_SCENARIO, injectProblem, withdrawOffersFor } from './problems.ts';
+import { FlightRecorder } from './recorder.ts';
 import { currentRun, reliability } from './reliability.ts';
 import { loadFixture, playFixture } from './replay.ts';
 import { seedWorld } from './seed.ts';
@@ -19,6 +20,19 @@ import { World } from './world.ts';
 const PORT = Number(process.env.API_PORT ?? 8787);
 
 const world = new World(seedWorld());
+
+// Optional flight recorder in MongoDB. Without MONGODB_URI, or if it can't be reached, the yard runs exactly the same in memory.
+const recorder = process.env.MONGODB_URI
+  ? await FlightRecorder.connect(process.env.MONGODB_URI).catch((err) => {
+      console.error('[recorder] not connected, running without it:', err instanceof Error ? err.message : err);
+      return null;
+    })
+  : null;
+if (recorder) {
+  world.state.corrections.push(...(await recorder.activeRules())); // the supervisor's rules outlive a restart
+  world.subscribe((event) => recorder.record(event));
+  console.log(`[recorder] connected, recording ${recorder.shift}`);
+}
 const contention = new Contention();
 // A truck's BLOCKED report opens an incident and a free agent picks it up.
 // A truck that reports again on an open incident is news for the agent already on it.
@@ -28,7 +42,7 @@ const sim = new Simulator(world, (report) => {
   else runner.wake(incident.id, ` reported BLOCKED again at Door ${report.door} (${report.reason.replace('_', ' ')}).`);
 });
 const dispatch = new Dispatch(world, sim);
-const runner = new AgentRunner({ world, sim, dispatch, contention, ask: claude() });
+const runner = new AgentRunner({ world, sim, dispatch, contention, memory: recorder ? () => recorder.earlierShifts() : undefined, ask: claude() });
 const actions = new Actions(world, runner);
 const app = new Hono();
 
@@ -52,7 +66,7 @@ function reset() {
 }
 
 app.get('/api/health', (c) =>
-  c.json({ ok: true, seq: world.state.seq, anthropicKey: Boolean(process.env.ANTHROPIC_API_KEY) }),
+  c.json({ ok: true, seq: world.state.seq, anthropicKey: Boolean(process.env.ANTHROPIC_API_KEY), recorder: recorder ? recorder.shift : null }),
 );
 
 /** Live event stream: snapshot first, then ordered events. `?replay=<fixture>` plays a fixture on a fresh world. */
@@ -80,7 +94,8 @@ app.get('/api/stream', (c) => {
 
     if (replay) {
       try {
-        stopReplay = playFixture(w, await loadFixture(replay));
+        // `shift-…` replays a recorded shift from MongoDB; anything else is a dev fixture file.
+        stopReplay = playFixture(w, replay.startsWith('shift-') && recorder ? await recorder.replayOf(replay) : await loadFixture(replay));
       } catch (err) {
         await stream.writeSSE({ event: 'error', data: JSON.stringify({ message: String(err) }) });
       }
@@ -148,7 +163,14 @@ app.get('/api/record', (c) => {
 });
 
 /** The reliability panel: outcomes of the current run, counted from its event log. Ask again after new events. */
-app.get('/api/reliability', (c) => c.json(reliability(currentRun(world.since(0)), [...sim.commands.values()])));
+app.get('/api/reliability', async (c) => {
+  const shift = c.req.query('shift'); // a recorded shift's panel, counted the same way from MongoDB
+  if (shift && recorder) return c.json(reliability(await recorder.eventsOf(shift)));
+  return c.json(reliability(currentRun(world.since(0)), [...sim.commands.values()]));
+});
+
+/** Every recorded shift, newest first. Replay one with `/?replay=<shift>` in the console. */
+app.get('/api/shifts', async (c) => c.json({ recording: recorder?.shift ?? null, shifts: recorder ? await recorder.shifts() : [] }));
 
 /* ---------- the supervisor (console) ---------- */
 
