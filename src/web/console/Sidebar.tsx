@@ -34,13 +34,13 @@ export function Sidebar({
 
   return (
     <aside className="flex min-h-0 flex-col px-3 pt-3 pb-3">
-      <div className="flex items-center gap-2.5 px-2 py-1.5 text-fg">
+      <a href="/" aria-label="Firefly home" className="flex items-center gap-2.5 px-2 py-1.5 text-fg">
         <FireflyMark width={34} />
         <div className="leading-tight">
           <p className="text-[14px] font-semibold tracking-[-0.01em] text-fg">Firefly</p>
           <p className="text-[12px] text-fg-3">North Yard</p>
         </div>
-      </div>
+      </a>
 
       <WorkerLauncher />
       <div className="min-h-0 flex-1 overflow-y-auto">

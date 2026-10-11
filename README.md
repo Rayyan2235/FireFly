@@ -10,16 +10,18 @@ Hackathon build in progress.
 
 ## Run it
 
-Needs Node 20.6+ and pnpm.
+Needs Node 22.12+ and pnpm.
 
 ```bash
 pnpm install
 cp .env.example .env   # add your ANTHROPIC_API_KEY
-pnpm dev               # server on :8787, console on http://localhost:5173
+pnpm dev               # server on :8787, product on http://localhost:5173
 ```
 
-- Console: `http://localhost:5173` · worker phone page: `http://<laptop-ip>:5173/worker.html`
-- Build screens before the server logic exists: `http://localhost:5173/?replay=demo-r2` plays the dev fixture in `fixtures/` (dev only, never in the video).
+- Start at `http://localhost:5173` for the landing story, then choose **Open the console**.
+- Console: `http://localhost:5173/console.html` · worker phone page: `http://<laptop-ip>:5173/worker.html`
+- The landing story is also available at `http://localhost:5173/landing.html`.
+- Build screens before the server logic exists: `http://localhost:5173/console.html?replay=demo-r2` plays the dev fixture in `fixtures/` (dev only, never in the video).
 - `pnpm test` · `pnpm typecheck` · `pnpm build`
 
 ## Simulation disclosure
