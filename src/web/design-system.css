@@ -1,20 +1,21 @@
-/* Adapted from the user-supplied General Intelligence Company reference.
+/* Adapted from the user-supplied General Intelligence Company reference, in the console's dark,
+   grey-only treatment (no accent hue; attention is inverted white).
    Pixel imagery and pixel icons are intentionally excluded. */
 :root {
-  --background: #ffffff; --surface: #fefffc; --surface-raised: #f9faf7;
-  --surface-sunken: #f3f5f2; --surface-tint: #eef1ed;
-  --foreground: #171717; --ink: #2c2c2c; --ink-secondary: #444141;
-  --ink-muted: #646464; --line: #dee2de; --line-strong: #cfd3cf;
-  --control-solid: #1f1f29; --accent: #0081c0;
+  --background: #08090a; --surface: #08090a; --surface-raised: #0f1011;
+  --surface-sunken: #0f1011; --surface-tint: rgb(255 255 255 / .06);
+  --foreground: #ffffff; --ink: #ffffff; --ink-secondary: #d0d6e0;
+  --ink-muted: #969ba3; --line: rgb(255 255 255 / .07); --line-strong: rgb(255 255 255 / .2);
+  --control-solid: #1f1f29; --accent: #ffffff;
   --radius-sm: 6px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px;
   --shadow-float: 0 2px 6px #00000026; --shadow-card: 0 1px 8px #0000000d;
   --shadow-pill: 0 1px 1px #0000000a;
-  --font-ui: 'Inter', sans-serif;
+  --font-ui: 'Geist', ui-sans-serif, system-ui, sans-serif;
   font-family: var(--font-ui); color: var(--foreground); background: var(--background);
-  color-scheme: light; scrollbar-color: #adbeaf var(--surface-sunken);
+  color-scheme: dark; scrollbar-color: #3a3e44 var(--surface-sunken);
   caret-color: var(--foreground); font-synthesis: none;
 }
-::selection { background: #cfebe7; color: var(--foreground); }
+::selection { background: rgb(255 255 255 / .2); color: var(--foreground); }
 a, button { -webkit-tap-highlight-color: transparent; }
 a { text-underline-offset: 4px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }

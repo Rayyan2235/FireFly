@@ -23,7 +23,7 @@ function DockNumber({ number }: { number: number }) {
   const texture = useMemo(() => {
     const c = document.createElement('canvas'); c.width = 64; c.height = 64;
     const ctx = c.getContext('2d')!;
-    ctx.fillStyle = '#374d49'; ctx.font = '500 44px sans-serif';
+    ctx.fillStyle = '#c9ced6'; ctx.font = '500 44px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(number), 32, 32);
     const t = new CanvasTexture(c); t.colorSpace = SRGBColorSpace; return t;
   }, [number]);
@@ -35,23 +35,23 @@ function DockNumber({ number }: { number: number }) {
 
 // The background uses the same silhouette and sensors, with fine trim omitted.
 function Fleet() {
-  return <group>{[1,2,3,4,5,6,8].map(door=><group key={door} position={[doorX(door),0,-10.65]}><Truck detail={false} color={door%2 ? '#899f99' : '#bac9bd'} /></group>)}</group>;
+  return <group>{[1,2,3,4,5,6,8].map(door=><group key={door} position={[doorX(door),0,-10.65]}><Truck detail={false} color={door%2 ? '#2f3032' : '#bcbec2'} /></group>)}</group>;
 }
 
 function Warehouse({ fleet }: { fleet: boolean }) {
   return <group>
-    <mesh position={[0, 4.5, -27]} receiveShadow><boxGeometry args={[58, 9, 14]} /><meshStandardMaterial color="#c0cbbd" roughness={0.8} /></mesh>
-    <mesh position={[0, 8.65, -19.95]}><boxGeometry args={[58, 0.1, 0.08]} /><meshBasicMaterial color="#f3f1db" /></mesh>
+    <mesh position={[0, 4.5, -27]} receiveShadow><boxGeometry args={[58, 9, 14]} /><meshStandardMaterial color="#2d3137" roughness={0.8} /></mesh>
+    <mesh position={[0, 8.65, -19.95]}><boxGeometry args={[58, 0.1, 0.08]} /><meshBasicMaterial color="#5b6068" /></mesh>
     {Array.from({ length: 8 }, (_, i) => <group key={i}>
-      <mesh position={[doorX(i + 1), 2.3, -19.85]}><boxGeometry args={[3.6, 4.6, 0.3]} /><meshStandardMaterial color="#536963" /></mesh>
-      <mesh position={[doorX(i + 1), 2.35, -19.65]}><planeGeometry args={[3, 4.1]} /><meshStandardMaterial color="#899b90" metalness={0.5} roughness={0.65} /></mesh>
+      <mesh position={[doorX(i + 1), 2.3, -19.85]}><boxGeometry args={[3.6, 4.6, 0.3]} /><meshStandardMaterial color="#131415" /></mesh>
+      <mesh position={[doorX(i + 1), 2.35, -19.65]}><planeGeometry args={[3, 4.1]} /><meshStandardMaterial color="#9aa0a8" metalness={0.5} roughness={0.65} /></mesh>
       <DockNumber number={i + 1} />
-      {[0, 1, 2, 3, 4, 5].map(row => <mesh key={row} position={[doorX(i + 1), 0.65 + row * 0.65, -19.62]}><boxGeometry args={[3, 0.025, 0.015]} /><meshStandardMaterial color="#657d72" /></mesh>)}
-      <mesh position={[doorX(i + 1) - 2.25, 0.02, -9]} rotation-x={-Math.PI / 2}><planeGeometry args={[0.055, 21]} /><meshBasicMaterial color="#f3f0d5" transparent opacity={0.8} /></mesh>
+      {[0, 1, 2, 3, 4, 5].map(row => <mesh key={row} position={[doorX(i + 1), 0.65 + row * 0.65, -19.62]}><boxGeometry args={[3, 0.025, 0.015]} /><meshStandardMaterial color="#6e747c" /></mesh>)}
+      <mesh position={[doorX(i + 1) - 2.25, 0.02, -9]} rotation-x={-Math.PI / 2}><planeGeometry args={[0.055, 21]} /><meshBasicMaterial color="#6f747b" transparent opacity={0.8} /></mesh>
     </group>)}
-    {Array.from({length:30},(_,i)=><mesh key={i} position={[-28+i*1.9,7,-19.97]}><boxGeometry args={[.025,3.2,.03]} /><meshStandardMaterial color="#91a48f" /></mesh>)}
-    {[-24,-12,0,12,24].map(x=><mesh key={x} position={[x,9.7,-27]} castShadow><boxGeometry args={[4,1.4,3]} /><meshStandardMaterial color="#a7b6ab" /></mesh>)}
-    {Array.from({length:8},(_,i)=><group key={i} position={[doorX(i+1),0,0]}>{[-2,2].map(x=><mesh key={x} position={[x,.65,-19.1]} castShadow><cylinderGeometry args={[.1,.12,1.3,12]} /><meshStandardMaterial color="#c4a455" /></mesh>)}</group>)}
+    {Array.from({length:30},(_,i)=><mesh key={i} position={[-28+i*1.9,7,-19.97]}><boxGeometry args={[.025,3.2,.03]} /><meshStandardMaterial color="#3d4249" /></mesh>)}
+    {[-24,-12,0,12,24].map(x=><mesh key={x} position={[x,9.7,-27]} castShadow><boxGeometry args={[4,1.4,3]} /><meshStandardMaterial color="#3a3e44" /></mesh>)}
+    {Array.from({length:8},(_,i)=><group key={i} position={[doorX(i+1),0,0]}>{[-2,2].map(x=><mesh key={x} position={[x,.65,-19.1]} castShadow><cylinderGeometry args={[.1,.12,1.3,12]} /><meshStandardMaterial color="#8a8f96" /></mesh>)}</group>)}
     {fleet && <Fleet />}
   </group>;
 }
@@ -127,13 +127,13 @@ export function Scene({ progress, beat, selected, onSelect, hotspots, reducedMot
     <YardGround />
     <Warehouse fleet={beat !== 2 && beat !== 3} />
     <group ref={rig} position={[15, 0, 4]}>
-      <Truck color="#b6c9c2" scan={beat === 2} highlight={beat === 3 ? selected ?? undefined : undefined} onPartClick={pick} animate={!reducedMotion} />
+      <Truck color="#e7e9ec" scan={beat === 2} highlight={beat === 3 ? selected ?? undefined : undefined} onPartClick={pick} animate={!reducedMotion} />
     </group>
     <group ref={pallet} position={[15, 7, -11]}><Pallet /></group>
     {(beat === 4 || beat === 5) && <group>
-      <mesh position={[15, 0.055, -4]} rotation-x={-Math.PI / 2}><planeGeometry args={[0.055, 29]} /><meshBasicMaterial color="#0081c0" transparent opacity={0.55} /></mesh>
-      <mesh position={[3, 0.055, 10.5]} rotation-x={-Math.PI / 2}><planeGeometry args={[24, 0.055]} /><meshBasicMaterial color="#0081c0" transparent opacity={0.55} /></mesh>
-      {[[-9, 10.5], [15, -18.5], [15, 10.5]].map(([x, z]) => <mesh key={`${x}-${z}`} position={[x, 0.06, z]} rotation-x={-Math.PI / 2}><ringGeometry args={[0.45, 0.52, 24]} /><meshBasicMaterial color="#0081c0" /></mesh>)}
+      <mesh position={[15, 0.055, -4]} rotation-x={-Math.PI / 2}><planeGeometry args={[0.055, 29]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.55} /></mesh>
+      <mesh position={[3, 0.055, 10.5]} rotation-x={-Math.PI / 2}><planeGeometry args={[24, 0.055]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.55} /></mesh>
+      {[[-9, 10.5], [15, -18.5], [15, 10.5]].map(([x, z]) => <mesh key={`${x}-${z}`} position={[x, 0.06, z]} rotation-x={-Math.PI / 2}><ringGeometry args={[0.45, 0.52, 24]} /><meshBasicMaterial color="#ffffff" /></mesh>)}
     </group>}
   </>;
 }

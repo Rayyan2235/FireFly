@@ -2,8 +2,8 @@ import { Component, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PCFShadowMap } from 'three';
-import { ArrowRight, ArrowLeft, Plus } from 'lucide-react';
-import { PrismaHero, PrismaAction } from './components/ui/prisma-hero.tsx';
+import { ArrowRight, ArrowLeft, Plus } from '@phosphor-icons/react';
+import { FireflyMark, PrismaHero, PrismaAction } from './components/ui/prisma-hero.tsx';
 import { Scene, parts } from './Scene.tsx';
 import type { InspectPart } from './Scene.tsx';
 
@@ -68,7 +68,7 @@ export function Landing() {
         <a href="/console.html">Open the console <ArrowRight size={14} strokeWidth={1.5} aria-hidden="true" /></a>
       </nav>
     </header>
-    <a className="small-wordmark" href="#beginning">Firefly</a>
+    <a className="small-wordmark" href="#beginning"><FireflyMark strokeWidth={16} />Firefly</a>
     <span className="twin-label"><span />Twin mode · simulated trucks</span>
     <div className="scene" aria-hidden="true">
       <SceneBoundary><Canvas frameloop={motionReduced ? 'demand' : 'always'} shadows={{ type: PCFShadowMap }} dpr={[1, 1.5]} camera={{ position: [35, 11, 26], fov: 42, near: 0.1, far: 250 }} gl={{ antialias: true, powerPreference: 'high-performance' }} fallback={<div className="scene-fallback">3D needs WebGL. The full story is available below.</div>}>

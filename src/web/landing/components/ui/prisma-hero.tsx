@@ -1,17 +1,26 @@
-import { ArrowRight, Asterisk } from 'lucide-react';
+import { ArrowRight } from '@phosphor-icons/react';
 import type { CSSProperties, ReactNode } from 'react';
 
 // The supplied hero composition, with the new system’s always-visible typography.
 export function WordsPullUp({ text, className = '', showAsterisk = false, style }: {
   text: string; className?: string; showAsterisk?: boolean; style?: CSSProperties; reduceMotion?: boolean;
 }) {
-  return <span className={`words-pull-up ${className}`} style={style}><span className="pull-word">{text}{showAsterisk && <Asterisk className="word-asterisk" strokeWidth={1.25} aria-hidden="true" />}</span></span>;
+  return <span className={`words-pull-up ${className}`} style={style}><span className="pull-word">{text}{showAsterisk && <FireflyMark className="word-asterisk" />}</span></span>;
+}
+
+/** The Firefly logo mark (same paths as public/brand/firefly-mark.svg), drawn in currentColor. */
+export function FireflyMark({ className, strokeWidth = 12 }: { className?: string; strokeWidth?: number }) {
+  return <svg className={className} viewBox="0 0 320 160" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="160" cy="36" r="22" /><rect x="138" y="68" width="44" height="80" rx="22" />
+    <path d="M138 60 H6 L42 97 C54 111 64 120 82 120 C100 120 116 108 138 92" />
+    <path d="M182 60 H314 L278 97 C266 111 256 120 238 120 C220 120 204 108 182 92" />
+  </svg>;
 }
 
 export function PrismaAction({ children, href, onClick }: {
   children: ReactNode; href?: string; onClick?: () => void;
 }) {
-  const contents = <><span>{children}</span><span className="action-disc"><ArrowRight size={18} strokeWidth={1.5} aria-hidden="true" /></span></>;
+  const contents = <><span>{children}</span><span className="action-disc"><ArrowRight size={16} aria-hidden="true" /></span></>;
   return href ? <a className="prisma-action" href={href}>{contents}</a> : <button className="prisma-action" onClick={onClick}>{contents}</button>;
 }
 
