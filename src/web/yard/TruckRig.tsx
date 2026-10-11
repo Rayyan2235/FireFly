@@ -59,7 +59,7 @@ function Wheel({ x, z, dual, set }: { x: number; z: number; dual?: boolean; set:
 
 const T = 2.0; // the tractor sits this far forward of where it was in the 10 m rig
 
-export function TruckRig({ color, wheels, withTractor = true }: { color: string; wheels: MutableRefObject<Group[]>; withTractor?: boolean }) {
+export function TruckRig({ color, wheels }: { color: string; wheels: MutableRefObject<Group[]> }) {
   const body = paint(color);
   const set = (i: number) => (g: Group | null) => {
     if (g) wheels.current[i] = g;
@@ -75,7 +75,7 @@ export function TruckRig({ color, wheels, withTractor = true }: { color: string;
   return (
     <group>
       {/* ---------------- tractor ---------------- */}
-      <group position-z={T} visible={withTractor}>
+      <group position-z={T}>
         <mesh material={M.frame} position={[0, 0.85, 3.2]}>
           <boxGeometry args={[1.0, 0.28, 3.4]} />
         </mesh>
@@ -200,9 +200,9 @@ export function TruckRig({ color, wheels, withTractor = true }: { color: string;
       )}
 
       {/* ---------------- wheels ---------------- */}
-      {axles.filter((_, i) => withTractor || i >= 3).flatMap((a, i, list) => [
-        <Wheel key={`l${a.z}`} x={-1.06} z={a.z} dual={a.dual} set={set(axles.indexOf(list[i]!) * 2)} />,
-        <Wheel key={`r${a.z}`} x={1.06} z={a.z} dual={a.dual} set={set(axles.indexOf(list[i]!) * 2 + 1)} />,
+      {axles.flatMap((a, i) => [
+        <Wheel key={`l${i}`} x={-1.06} z={a.z} dual={a.dual} set={set(i * 2)} />,
+        <Wheel key={`r${i}`} x={1.06} z={a.z} dual={a.dual} set={set(i * 2 + 1)} />,
       ])}
     </group>
   );
@@ -213,15 +213,10 @@ export function TruckRig({ color, wheels, withTractor = true }: { color: string;
 export const TRUCK_GLB = '/models/truck.glb';
 const GLB_YAW = 0; // set to Math.PI if the model's cab points the wrong way
 
-/**
- * Fits a glTF truck into the rig's footprint: longest side along z, wheels on the ground.
- * A whole rig (long and low) is scaled to the rig's length with its rear at the dock.
- * A tractor alone (short and tall) is scaled to a real 3.9 m cab height, its nose at the rig's front,
- * and pulls the procedural trailer.
- */
-function GlbTruck({ url, color, wheels }: { url: string; color: string; wheels: MutableRefObject<Group[]> }) {
+/** Fits any glTF truck into the rig's footprint: longest side along z, wheels on the ground, rear at RIG.rear. */
+function GlbTruck({ url }: { url: string }) {
   const { scene } = useGLTF(url);
-  const { fitted, tractorOnly } = useMemo(() => {
+  const fitted = useMemo(() => {
     const root = scene.clone(true);
     root.traverse((o) => {
       const m = o as Mesh;
@@ -233,24 +228,14 @@ function GlbTruck({ url, color, wheels }: { url: string; color: string; wheels: 
     const size = new Box3().setFromObject(root).getSize(new Vector3());
     if (size.x > size.z) root.rotation.y = Math.PI / 2;
     root.rotation.y += GLB_YAW;
-    root.updateMatrixWorld(true);
     const box = new Box3().setFromObject(root);
-    const length = box.max.z - box.min.z;
-    const height = box.max.y - box.min.y;
-    const tractorOnly = length / height < 2.6;
-    root.scale.setScalar(tractorOnly ? 3.9 / height : (RIG.front - RIG.rear) / length);
-    root.updateMatrixWorld(true);
+    const s = (RIG.front - RIG.rear) / (box.max.z - box.min.z);
+    root.scale.setScalar(s);
     const b = new Box3().setFromObject(root);
-    const z = tractorOnly ? RIG.front - b.max.z : RIG.rear - b.min.z;
-    root.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, z);
-    return { fitted: root, tractorOnly };
+    root.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, RIG.rear - b.min.z);
+    return root;
   }, [scene]);
-  return (
-    <>
-      {tractorOnly && <TruckRig color={color} wheels={wheels} withTractor={false} />}
-      <primitive object={fitted} />
-    </>
-  );
+  return <primitive object={fitted} />;
 }
 
 class Fallback extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -270,7 +255,7 @@ export function Truck3D({ color, wheels, hasModel }: { color: string; wheels: Mu
   return (
     <Fallback fallback={rig}>
       <Suspense fallback={rig}>
-        <GlbTruck url={TRUCK_GLB} color={color} wheels={wheels} />
+        <GlbTruck url={TRUCK_GLB} />
       </Suspense>
     </Fallback>
   );
