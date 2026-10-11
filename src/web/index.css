@@ -356,3 +356,17 @@ body {
 .r5-popover select { display:block; width:100%; min-height:48px; margin-top:6px; padding:0 12px; color:white; background:#18191b; border:1px solid var(--color-line-strong); border-radius:8px; color-scheme:dark; }
 .r5-popover>.btn { width:100%; }
 .worker-page button:focus-visible,.r5-popover select:focus-visible { outline:2px solid white; outline-offset:3px; }
+
+.r5-server-action { margin-top:8px; }
+.r5-server-action .btn--quiet { padding-left:0; font-size:12px; }
+.r5-resume { margin:0 12px; padding:12px; border-top:1px solid var(--color-line); }
+.r5-resume>p { font-size:12px; color:var(--color-fg-3); }
+.r5-resume .r5-error { max-height:100px; overflow:auto; }
+.r5-reliability { padding:12px; margin-top:24px; border-radius:12px; font-size:11px; }
+.r5-reliability h2 { font-size:13px; font-weight:500; }
+.r5-reliability p { color:var(--color-fg-3); margin:4px 0 8px; line-height:1.5; }
+.r5-reliability dl>div { display:flex; justify-content:space-between; gap:12px; padding:4px 0; }
+.r5-reliability dt { color:var(--color-fg-3); }
+.r5-reliability dd { font-family:var(--font-mono); flex-shrink:0; }
+.r5-reliability summary { cursor:pointer; padding:12px 0 0; color:var(--color-fg-2); }
+.r5-reliability h3 { border-top:1px solid var(--color-line); padding-top:10px; margin-top:10px; font-size:11px; color:var(--color-fg-2); }

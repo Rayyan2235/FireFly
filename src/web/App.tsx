@@ -56,6 +56,7 @@ export function App() {
             runs={runs}
             incidents={world?.incidents ?? []}
             approvals={world?.approvals ?? []}
+            trucks={world?.trucks ?? []}
             selected={selected}
             onSelect={setPicked}
           />

@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { HardHat, Robot, Truck, User } from '@phosphor-icons/react';
 import type { WorldSnapshot } from '../../contract.ts';
+import { ServerAction } from './ServerAction.tsx';
+import { Reliability } from './Reliability.tsx';
 import { FireflyMark, StatusIcon } from './bits.tsx';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -73,6 +75,7 @@ export function Sidebar({
                   <span className="mt-0.5 block text-[11.5px] text-fg-4">
                     {r.source} · until {r.releaseCondition}
                   </span>
+                  <ServerAction path={`/api/corrections/${encodeURIComponent(r.id)}/release`} label="Maintenance cleared" />
                 </li>
               ))}
             </ul>
@@ -95,6 +98,7 @@ export function Sidebar({
             <Row icon={<Truck size={15} />} name={`${trucks.length} trucks`} detail={held ? `${held} held` : 'none held'} alert={held > 0} />
           </ul>
         </Section>
+        <Reliability seq={world?.seq} />
       </div>
 
       <p className="mt-3 flex items-center gap-2 rounded-md border border-line px-2.5 py-2 text-[12px] text-fg-3">

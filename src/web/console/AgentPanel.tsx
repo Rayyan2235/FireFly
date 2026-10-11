@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUp, ArrowsOutSimple, CaretRight, Check, CircleNotch, Minus, SealCheck, WarningCircle, X } from '@phosphor-icons/react';
-import type { Approval, Incident } from '../../contract.ts';
+import type { Approval, Incident, Truck } from '../../contract.ts';
+import { checkResponse } from '../api.ts';
+import { ServerAction } from './ServerAction.tsx';
 import { Button } from '../ui/Button.tsx';
 import { FireflyMark, StatusIcon, agentName, clock } from './bits.tsx';
 import { seconds } from './runs.ts';
@@ -16,12 +18,14 @@ export function AgentPanel({
   runs,
   incidents,
   approvals,
+  trucks,
   selected,
   onSelect,
 }: {
   runs: AgentRun[];
   incidents: Incident[];
   approvals: Approval[];
+  trucks: Truck[];
   selected: string | null;
   onSelect: (incidentId: string) => void;
 }) {
@@ -89,6 +93,11 @@ export function AgentPanel({
       ) : (
         <Empty />
       )}
+      {(() => {
+        const incident = incidents.find(i => i.id === selected);
+        const held = incident && (incident.status === 'held' || trucks.some(t => t.id === incident.truckId && t.controller === 'held'));
+        return held && incident.status !== 'resolved' ? <div className="r5-resume"><p>Truck held · resume gate applies</p><ServerAction key={incident.id} path={`/api/incidents/${encodeURIComponent(incident.id)}/resume`} label="Resume now" variant="glass" /></div> : null;
+      })()}
       <Composer run={run} />
     </section>
   );
@@ -199,7 +208,7 @@ function ApprovalBlock({ approval }: { approval: Approval }) {
     setState({ kind: 'sending' });
     try {
       const res = await fetch(`/api/approvals/${encodeURIComponent(approval.id)}/approve`, { method: 'POST' });
-      if (!res.ok) throw new Error(`The server answered ${res.status}. Nothing was authorized.`);
+      await checkResponse(res);
       setState({ kind: 'idle' });
     } catch (err) {
       setState({ kind: 'error', message: err instanceof Error ? err.message : "Couldn't reach the server. Nothing was authorized." });
@@ -249,7 +258,7 @@ function Composer({ run }: { run: AgentRun | null }) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: body, incident_id: run?.incidentId ?? null, from: 'maria' }),
       });
-      if (!res.ok) throw new Error(`The server answered ${res.status}. Your note wasn't saved.`);
+      await checkResponse(res);
       setText('');
       setState({ kind: 'idle' });
     } catch (err) {
