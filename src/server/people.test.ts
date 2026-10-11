@@ -147,6 +147,28 @@ describe('R-5: people, corrections and the resume gate', () => {
     expect(world.state.corrections).toHaveLength(0);
   });
 
+  it('a supervisor "resume now" goes through the same gate: refused with what is missing, and recorded', async () => {
+    const { world, events, actions, agent, after } = setup();
+    await agent(['offer_task', { incident_id: 'R-5', worker_id: 'noor' }]);
+    await after(() => actions.answer('K-1', 'noor', true));
+    await after(() => actions.report('K-1', 'noor', 'cleared'));
+
+    expect(() => actions.resumeNow('R-5')).toThrow('Resume rejected: The worker has not reported people clear. The supervisor has not authorized the resume.');
+    const [asked, refused] = events.slice(-2);
+    expect(asked).toMatchObject({ type: 'radio', source_mode: 'human', payload: { from: 'Maria', type: 'RESUME' } });
+    expect(refused).toMatchObject({ type: 'incident.updated', source_mode: 'system', caused_by: asked!.seq });
+    expect(refused!.summary).toContain('T-5 stays held.');
+    expect(world.state.trucks.find((t) => t.id === 'T-5')?.controller).toBe('held');
+    expect(events.filter((e) => e.type === 'truck.route' && e.incident_id === 'R-5')).toHaveLength(0); // it never moves a truck
+
+    // Once everything is in place it refuses nothing, and still sends no command of its own.
+    await after(() => actions.report('K-1', 'noor', 'people_clear'), ['request_authorization', { incident_id: 'R-5' }]);
+    await after(() => actions.approve('A-1'));
+    const before = world.state.seq;
+    expect(() => actions.resumeNow('R-5')).not.toThrow();
+    expect(world.since(before).map((e) => e.type)).toEqual(['radio']);
+  });
+
   it('workers can only act on their own task, in order', async () => {
     const { actions, agent } = setup();
     await agent(['offer_task', { incident_id: 'R-5', worker_id: 'noor' }]);

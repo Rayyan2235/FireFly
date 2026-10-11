@@ -1,4 +1,5 @@
 import type { MessageType, Task, Worker } from '../contract.ts';
+import { resumeBlockers } from './tools/people.ts';
 import type { World } from './world.ts';
 
 /** A human action that can't be applied right now. The message is shown to the person who tried. */
@@ -58,6 +59,38 @@ export class Actions {
     this.radio(maria, 'APPROVE', `Resume authorized for ${approval.incidentId}.`, approval.incidentId);
     this.world.emit({ type: 'approval.changed', actor: { kind: 'person', id: maria.id }, source_mode: 'human', incident_id: approval.incidentId, summary: `${maria.name} authorized the resume for ${approval.incidentId}.`, payload: { ...approval } });
     this.agents.wake(approval.incidentId, `${maria.name} authorized the resume.`);
+  }
+
+  /**
+   * The supervisor asks for a held truck to resume right now. It goes through the same
+   * release check the agent's `request_resume` uses, so an early request is refused and
+   * the refusal is recorded with what is missing. It never moves a truck by itself:
+   * when nothing is missing, the agent on the incident is already resuming it.
+   * (Added to show the gate on demand; may be removed.)
+   */
+  resumeNow(incidentId: string): void {
+    const incident = this.world.state.incidents.find((i) => i.id === incidentId);
+    const truck = this.world.state.trucks.find((t) => t.id === incident?.truckId);
+    if (!incident || !truck) throw new ActionError('No held truck on that incident.');
+    if (incident.status === 'resolved') throw new ActionError(`${incident.id} is already resolved.`);
+
+    const maria = this.worker(SUPERVISOR);
+    const asked = this.radio(maria, 'RESUME', `Resume ${truck.id} now.`, incident.id);
+    const missing = resumeBlockers(this.world, incident);
+    if (truck.controller !== 'held') missing.push(`${truck.id} is ${truck.controller}, not held.`);
+    if (!missing.length) return;
+
+    const refusal = `Resume rejected: ${missing.join(' ')}`;
+    this.world.emit({
+      type: 'incident.updated',
+      actor: { kind: 'system', id: 'tools' },
+      source_mode: 'system',
+      incident_id: incident.id,
+      caused_by: asked.seq,
+      summary: `${refusal} ${truck.id} stays ${truck.controller}.`,
+      payload: { ...incident },
+    });
+    throw new ActionError(refusal);
   }
 
   /** The supervisor ends a saved rule, e.g. maintenance cleared the forklift. */

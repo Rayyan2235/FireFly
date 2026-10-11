@@ -154,6 +154,7 @@ app.get('/api/reliability', (c) => c.json(reliability(currentRun(world.since(0))
 
 app.post('/api/note', (c) => act(c, (b) => actions.note(String(b.text ?? ''), typeof b.incident_id === 'string' ? b.incident_id : undefined)));
 app.post('/api/approvals/:id/approve', (c) => act(c, () => actions.approve(c.req.param('id'))));
+app.post('/api/incidents/:id/resume', (c) => act(c, () => actions.resumeNow(c.req.param('id'))));
 app.post('/api/corrections/:id/release', (c) => act(c, () => actions.releaseCorrection(c.req.param('id'))));
 
 /* ---------- workers (phone page) ---------- */
