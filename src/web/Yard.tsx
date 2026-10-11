@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, OrbitControls } from '@react-three/drei';
 import { EffectComposer, N8AO, SMAA, ToneMapping } from '@react-three/postprocessing';
@@ -9,7 +9,7 @@ import { YARD, doorX, parkX } from '../contract.ts';
 import type { Door, Truck } from '../contract.ts';
 import { lerpAngle, poseAt } from './route.ts';
 import type { ActiveRoute } from './useStream.ts';
-import { TruckRig, WHEEL_R } from './yard/TruckRig.tsx';
+import { TRUCK_GLB, Truck3D, WHEEL_R } from './yard/TruckRig.tsx';
 import { asphalt, cladding, concrete, doorPanels } from './yard/textures.ts';
 
 // A dusk yard, rendered physically: image-based reflections, soft shadows, ambient occlusion.
@@ -236,7 +236,7 @@ function Pallet({ x, z }: { x: number; z: number }) {
 
 /* ------------------------------------------------------------------ trucks */
 
-function TruckModel({ truck, active }: { truck: Truck; active?: ActiveRoute }) {
+function TruckModel({ truck, active, hasModel }: { truck: Truck; active?: ActiveRoute; hasModel: boolean }) {
   const ref = useRef<Group>(null);
   const wheels = useRef<Group[]>([]);
   useFrame((_, dt) => {
@@ -257,13 +257,25 @@ function TruckModel({ truck, active }: { truck: Truck; active?: ActiveRoute }) {
   const held = truck.controller === 'held';
   return (
     <group ref={ref} position={[truck.pose.x, 0, truck.pose.z]} rotation-y={truck.pose.heading}>
-      <TruckRig color={TRUCK_COLORS[truck.id] ?? '#e7e9ec'} wheels={wheels} />
-      <Label text={held ? `${truck.id} · held` : truck.id} position={[0, 5.4, 0]} fg={held ? '#08090a' : '#ffffff'} bg={held ? '#ffffff' : '#1d1f23'} />
+      <Truck3D color={TRUCK_COLORS[truck.id] ?? '#e7e9ec'} wheels={wheels} hasModel={hasModel} />
+      <Label text={held ? `${truck.id} · held` : truck.id} position={[0, 5.4, 1.2]} fg={held ? '#08090a' : '#ffffff'} bg={held ? '#ffffff' : '#1d1f23'} />
     </group>
   );
 }
 
+/** True when a truck model has been dropped into public/models (Vite answers a missing file with the HTML page). */
+function useHasModel(url: string) {
+  const [has, setHas] = useState(false);
+  useEffect(() => {
+    fetch(url, { method: 'HEAD' })
+      .then((r) => setHas(r.ok && !(r.headers.get('content-type') ?? '').includes('text/html')))
+      .catch(() => setHas(false));
+  }, [url]);
+  return has;
+}
+
 export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]; routes: Record<string, ActiveRoute> }) {
+  const hasModel = useHasModel(TRUCK_GLB);
   return (
     // The view is shifted right so the yard sits clear of the agent panel floating on the right.
     <Canvas shadows dpr={[1, 2]} camera={{ position: [30, 58, 84], fov: 34, near: 1, far: 400 }}>
@@ -284,7 +296,7 @@ export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]
         <DoorBay key={d.id} door={d} />
       ))}
       {trucks.map((t) => (
-        <TruckModel key={t.id} truck={t} active={routes[t.id]} />
+        <TruckModel key={t.id} truck={t} active={routes[t.id]} hasModel={hasModel} />
       ))}
       <OrbitControls target={[13, 0, -5]} enablePan={false} minPolarAngle={0.45} maxPolarAngle={1.25} minDistance={40} maxDistance={150} />
       <EffectComposer multisampling={0}>
