@@ -12,3 +12,6 @@ coverage/
 
 # local editor/agent config
 .claude/launch.json
+
+# public datasets (never committed)
+data/
