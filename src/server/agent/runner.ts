@@ -25,6 +25,8 @@ export interface RunnerParts {
   sim: Simulator;
   dispatch: Dispatch;
   contention?: Contention;
+  /** Outcomes recorded in earlier shifts, when a flight recorder is connected. */
+  memory?: () => Promise<Record<string, unknown>>;
   ask: AskModel;
 }
 
@@ -233,8 +235,8 @@ export class AgentRunner {
   }
 
   private context(run: Run): ToolContext {
-    const { world, sim, dispatch, contention } = this.parts;
-    return { world, sim, dispatch, contention, incidentId: run.incidentId, agentId: run.agentId, note: run.note, wake: (id, observation) => this.wake(id, observation) };
+    const { world, sim, dispatch, contention, memory } = this.parts;
+    return { world, sim, dispatch, contention, memory, incidentId: run.incidentId, agentId: run.agentId, note: run.note, wake: (id, observation) => this.wake(id, observation) };
   }
 
   private name(agentId: string): string {
