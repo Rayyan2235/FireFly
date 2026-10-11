@@ -8,8 +8,8 @@ import type { Door, Truck } from '../contract.ts';
 import { lerpAngle, poseAt } from './route.ts';
 import type { ActiveRoute } from './useStream.ts';
 
-// Starting point for the 3D yard. Colours are placeholders until the brand is chosen.
-const C = { ground: '#e3e6ea', apron: '#d6dadf', lane: '#c4c9cf', wall: '#f2f3f5', door: '#4a535d', closed: '#d2382f', reserved: '#e3a008', cab: '#2a323b', trailer: '#fafbfc' };
+// Night yard to sit inside the dark console. Colours are placeholders until the brand is chosen.
+const C = { bg: '#0c0d0f', ground: '#101114', apron: '#16181c', lane: '#1c1f24', wall: '#1d2025', door: '#2c3138', closed: '#eb5757', reserved: '#4a3a12', held: '#3d1618', cab: '#454c57', trailer: '#c9ced6', label: '#8a8f98' };
 
 function Plane({ w, d, x, z, color, y = 0.01 }: { w: number; d: number; x: number; z: number; color: string; y?: number }) {
   return (
@@ -64,7 +64,7 @@ function DoorBay({ door }: { door: Door }) {
         <meshStandardMaterial color={door.closed ? C.closed : C.door} />
       </mesh>
       {door.reservedBy && !door.occupant && <Plane w={5.2} d={11.6} x={x} z={-14} color={C.reserved} y={0.04} />}
-      <Label text={door.closed ? `${door.id} · closed` : String(door.id)} position={[x, 5.4, YARD.wallZ + 0.3]} fg={door.closed ? C.closed : '#334155'} bg={null} size={1.6} />
+      <Label text={door.closed ? `${door.id} · closed` : String(door.id)} position={[x, 5.4, YARD.wallZ + 0.3]} fg={door.closed ? C.closed : C.label} bg={null} size={1.6} />
     </group>
   );
 }
@@ -91,18 +91,20 @@ function TruckModel({ truck, active }: { truck: Truck; active?: ActiveRoute }) {
         <boxGeometry args={[2.4, 2.4, 2.1]} />
         <meshStandardMaterial color={C.cab} />
       </mesh>
-      {truck.controller === 'held' && <Plane w={3.4} d={10.6} x={0} z={0} color={C.closed} y={0.06} />}
-      <Label text={truck.controller === 'held' ? `${truck.id} · held` : truck.id} position={[0, 4.6, 0]} bg={truck.controller === 'held' ? C.closed : '#1f2937'} />
+      {truck.controller === 'held' && <Plane w={3.4} d={10.6} x={0} z={0} color={C.held} y={0.06} />}
+      <Label text={truck.controller === 'held' ? `${truck.id} · held` : truck.id} position={[0, 4.6, 0]} bg={truck.controller === 'held' ? C.closed : '#1d1f23'} />
     </group>
   );
 }
 
 export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]; routes: Record<string, ActiveRoute> }) {
   return (
-    <Canvas shadows camera={{ position: [0, 90, 78], fov: 30 }}>
-      <color attach="background" args={['#eceef1']} />
-      <hemisphereLight args={['#ffffff', '#cfd5db', 2]} />
-      <directionalLight position={[-34, 70, 40]} intensity={2.4} castShadow shadow-mapSize={[2048, 2048]}>
+    // The view is shifted right so the yard sits clear of the agent panel floating on the right.
+    <Canvas shadows camera={{ position: [12, 88, 80], fov: 30 }}>
+      <color attach="background" args={[C.bg]} />
+      <fog attach="fog" args={[C.bg, 120, 210]} />
+      <hemisphereLight args={['#aab4c3', '#0b0c0e', 1.1]} />
+      <directionalLight position={[-34, 70, 40]} intensity={2.2} color="#e8ecf2" castShadow shadow-mapSize={[2048, 2048]}>
         <orthographicCamera attach="shadow-camera" args={[-55, 55, 45, -45, 10, 200]} />
       </directionalLight>
       <Plane w={150} d={120} x={0} z={-2} color={C.ground} y={0} />
@@ -119,7 +121,7 @@ export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]
       {trucks.map((t) => (
         <TruckModel key={t.id} truck={t} active={routes[t.id]} />
       ))}
-      <OrbitControls target={[0, 0, -4]} enablePan={false} minPolarAngle={0.35} maxPolarAngle={1.12} minDistance={60} maxDistance={160} />
+      <OrbitControls target={[12, 0, -4]} enablePan={false} minPolarAngle={0.35} maxPolarAngle={1.12} minDistance={60} maxDistance={160} />
     </Canvas>
   );
 }

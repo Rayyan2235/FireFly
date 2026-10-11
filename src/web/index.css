@@ -1,8 +1,298 @@
 @import "tailwindcss";
 
+/*
+ * Console tokens. Dark base (Linear-like); glass, radii, shadows and buttons follow the
+ * General Intelligence Company design system (claude.ai/artifact/JqHZX2RGakx9sDDq9BZoU3),
+ * minus its pixel art. Colour is almost absent: red and green mark state, nothing else.
+ * Subject to change until the brand is chosen.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-canvas: #08090a; /* page */
+  --color-panel: #0f1011; /* main frame */
+  --color-raised: rgb(255 255 255 / 0.06); /* blocks inside glass */
+  --color-hover: rgb(255 255 255 / 0.08);
+  --color-line: rgb(255 255 255 / 0.07);
+  --color-line-strong: rgb(255 255 255 / 0.2); /* GIC glass-stroke */
+
+  --color-fg: #ffffff;
+  --color-fg-2: #d0d6e0;
+  --color-fg-3: #969ba3;
+  --color-fg-4: #6b7078;
+
+  --color-danger: #eb5757;
+  --color-ok: #4cb782;
+
+  --radius-lg: 8px; /* buttons, fields */
+  --radius-xl: 12px; /* blocks inside a panel, the nav */
+  --radius-2xl: 16px; /* glass panels */
+}
+
+:root {
+  /* GIC glass, translated for a dark scene: the white-tint recipe, since a dark tint vanishes on a night yard. */
+  --glass-from: rgb(249 250 247 / 0.1);
+  --glass-to: rgb(249 250 247 / 0.14);
+  --glass-stroke: rgb(255 255 255 / 0.2);
+  --blur-nav: 9px;
+  --blur-glass: 15px;
+  --shadow-float: 0 2px 6px 0 rgb(0 0 0 / 0.15), 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  --shadow-pill: 0 1px 1px 0 rgb(0 0 0 / 0.04);
+
+  --control-solid: #1f1f29;
+  --control-solid-border: #282834;
+  --sheen-solid-from: rgb(255 255 255 / 0);
+  --sheen-solid-to: rgb(255 255 255 / 0.12);
+  --sheen-glass-from: rgb(255 255 255 / 0.1);
+  --sheen-glass-to: rgb(255 255 255 / 0.19);
+  --sheen-pill-from: rgb(255 255 255 / 0.16);
+  --sheen-pill-to: rgb(255 255 255 / 0.08);
+}
+
 html,
 body,
 #root {
   height: 100%;
   margin: 0;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Anything floating over the yard: translucent fill + 1px translucent stroke + backdrop blur + shadow. All four, always. */
+.glass {
+  background: linear-gradient(180deg, var(--glass-from), var(--glass-to));
+  border: 1px solid var(--glass-stroke);
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(120%);
+  backdrop-filter: blur(var(--blur-glass)) saturate(120%);
+  box-shadow: var(--shadow-float);
+}
+.glass-nav {
+  background: linear-gradient(180deg, var(--glass-from), var(--glass-to));
+  border: 1px solid var(--glass-stroke);
+  -webkit-backdrop-filter: blur(var(--blur-nav));
+  backdrop-filter: blur(var(--blur-nav));
+  box-shadow: var(--shadow-float);
+}
+
+/* ---------------------------------------------------------------- Buttons (GIC) */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  font: 500 13.5px/20px var(--font-sans);
+  letter-spacing: -0.15px;
+  color: var(--color-fg);
+  transition:
+    background-color 250ms,
+    border-color 250ms,
+    opacity 250ms;
+}
+.btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.btn:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+.btn--solid {
+  padding: 6px 12px 7px 16px;
+  border: 1px solid var(--control-solid-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--control-solid);
+  background-image: linear-gradient(180deg, var(--sheen-solid-from), var(--sheen-solid-to));
+}
+.btn--solid:not(:disabled):hover {
+  border-color: #3a3a4a;
+}
+.btn--glass {
+  padding: 7px 14px 7px 14px;
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(315deg, var(--sheen-glass-from), var(--sheen-glass-to));
+  -webkit-backdrop-filter: blur(var(--blur-nav));
+  backdrop-filter: blur(var(--blur-nav));
+  box-shadow: var(--shadow-float);
+}
+.btn--glass:not(:disabled):hover {
+  border-color: rgb(255 255 255 / 0.32);
+}
+.btn--link {
+  padding: 0;
+  border-radius: 4px;
+  color: var(--color-fg-2);
+}
+.btn--link:not(:disabled):hover,
+.btn--quiet:not(:disabled):hover {
+  color: var(--color-fg);
+}
+.btn--quiet {
+  padding: 6px 0;
+  border-radius: 4px;
+  color: var(--color-fg-3);
+}
+
+/* The arrow always sits in a pill: the system's most recognisable small element. */
+.arrow-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 18px;
+  border-radius: 50.5px;
+  border: 1px solid rgb(255 255 255 / 0.24);
+  background: linear-gradient(0deg, var(--sheen-pill-to), var(--sheen-pill-from));
+  box-shadow: var(--shadow-pill);
+  color: #fff;
+}
+
+/* ------------------------------------------------------- Lever switch (gear shift) */
+
+.toggle-container {
+  position: relative;
+  width: 64px;
+  height: 50px;
+  flex: none;
+}
+.toggle-input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.toggle-input:disabled {
+  cursor: progress;
+}
+.toggle-container:has(.toggle-input:focus-visible) {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+.toggle-base {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 0;
+  height: 16px;
+  border-radius: 9px 9px 6px 6px;
+  border: 1px solid var(--glass-stroke);
+  background: linear-gradient(180deg, #2b2d33, #131417);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.08) inset,
+    var(--shadow-float);
+}
+.toggle-base-inside {
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 26px;
+  height: 5px;
+  translate: -50% 0;
+  border-radius: 3px;
+  background: #050506;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.8) inset;
+}
+.toggle-handle-wrapper {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 9px;
+  width: 0;
+  height: 0;
+}
+/* Gate letters engraved on the plate, like a real shifter. */
+.toggle-gate {
+  position: absolute;
+  top: 2px;
+  font: 600 9px/12px var(--font-mono);
+  color: var(--color-fg-4);
+  transition: color 250ms;
+}
+.toggle-gate--left {
+  left: 6px;
+  color: #fff;
+}
+.toggle-gate--right {
+  right: 6px;
+}
+.toggle-container:has(.toggle-input:checked) .toggle-gate--left {
+  color: var(--color-fg-4);
+}
+.toggle-container:has(.toggle-input:checked) .toggle-gate--right {
+  color: #fff;
+}
+/* The stick pivots in the gate. A springy ease gives it the clunk of a real shift. */
+.toggle-handle {
+  position: absolute;
+  left: -8px;
+  bottom: 0;
+  width: 16px;
+  height: 40px;
+  transform-origin: 50% 100%;
+  transform: rotate(-30deg);
+  transition: transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toggle-input:checked + .toggle-handle-wrapper .toggle-handle {
+  transform: rotate(30deg);
+}
+.toggle-handle-knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffffff, #c9ced6 38%, #5d626b 100%);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.55);
+}
+.toggle-handle-bar-wrapper {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 4px;
+  height: 28px;
+  translate: -50% 0;
+}
+.toggle-handle-bar {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4d525a, #c9ced6 50%, #4d525a);
+}
+
+/* ------------------------------------------------------------------- Motion */
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(2px);
+  }
+}
+.step-in {
+  animation: step-in 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-in {
+    animation: none;
+  }
+  .toggle-handle {
+    transition-duration: 1ms;
+  }
 }
