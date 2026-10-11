@@ -196,6 +196,7 @@ export interface EventPayloads {
   'correction.saved': Correction;
   'approval.changed': Approval;
   'worker.changed': Worker;
+  'equipment.changed': Equipment;
 }
 export type EventType = keyof EventPayloads;
 
