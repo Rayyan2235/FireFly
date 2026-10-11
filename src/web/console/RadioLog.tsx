@@ -1,17 +1,8 @@
 import type { FireflyEvent, MessageType, RadioMessage } from '../../contract.ts';
 import { clock } from './bits.tsx';
 
-const tone: Partial<Record<MessageType, string>> = {
-  BLOCKED: 'bg-danger/15 text-danger',
-  ACK: 'bg-ok/15 text-ok',
-  ARRIVED: 'bg-ok/15 text-ok',
-  DONE: 'bg-ok/15 text-ok',
-  CLEAR: 'bg-ok/15 text-ok',
-  GO_TO: 'bg-hover text-fg',
-  RESUME: 'bg-hover text-fg',
-  HOLD: 'bg-hover text-fg',
-  TASK: 'bg-hover text-fg',
-};
+// A worker asking Firefly for help is the only message that stands out.
+const ATTENTION: MessageType[] = ['BLOCKED', 'HOLD'];
 
 /** The one channel every worker talks on. Newest at the bottom, like a radio. */
 export function RadioLog({ events }: { events: FireflyEvent[] }) {
@@ -36,7 +27,7 @@ export function RadioLog({ events }: { events: FireflyEvent[] }) {
                   {m.from} <span className="text-fg-4">→</span> {m.to}
                 </span>
                 <span className="min-w-0 truncate text-fg-2">
-                  <span className={`mr-1.5 rounded px-1 py-px font-mono text-[10.5px] ${tone[m.type] ?? 'bg-hover text-fg-2'}`}>{m.type}</span>
+                  <span className={`chip mr-1.5 ${ATTENTION.includes(m.type) ? 'chip--attn' : ''}`}>{m.type}</span>
                   {m.text}
                 </span>
               </li>

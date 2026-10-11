@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, Check, ChevronRight, Loader2, Maximize2, Minus, ShieldCheck, X } from 'lucide-react';
+import { ArrowUp, ArrowsOutSimple, CaretRight, Check, CircleNotch, Minus, SealCheck, WarningCircle, X } from '@phosphor-icons/react';
 import type { Approval, Incident } from '../../contract.ts';
 import { Button } from '../ui/Button.tsx';
 import { FireflyMark, StatusIcon, agentName, clock } from './bits.tsx';
@@ -35,9 +35,9 @@ export function AgentPanel({
         onClick={() => setOpen(true)}
         className="btn btn--glass absolute top-4 right-4"
       >
-        <FireflyMark size={16} />
+        <FireflyMark width={24} />
         {run ? `${agentName(run.agentId)} · ${run.resolved ? 'Done' : 'Working'}` : 'Agents'}
-        <Maximize2 size={13} className="text-fg-3" />
+        <ArrowsOutSimple size={13} className="text-fg-3" />
       </button>
     );
   }
@@ -48,9 +48,9 @@ export function AgentPanel({
       className="glass absolute top-4 right-4 bottom-4 flex w-[400px] flex-col overflow-hidden rounded-2xl"
     >
       <header className="flex items-center gap-2 px-4 pt-3.5 pb-3">
-        <FireflyMark />
+        <FireflyMark width={28} />
         <span className="text-[14px] font-medium text-fg">{run ? agentName(run.agentId) : 'Firefly'}</span>
-        <span className="rounded-md border border-line-strong px-1.5 py-px text-[11.5px] text-fg-3">{MODEL}</span>
+        <span className="text-[12px] text-fg-4">{MODEL}</span>
         <button
           onClick={() => setOpen(false)}
           aria-label="Minimize agent panel"
@@ -129,7 +129,7 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
             {run.trigger.from} → {run.trigger.to} · {clock(run.trigger.ts)}
           </p>
           <div className="rounded-xl border border-line bg-raised px-3.5 py-2.5 text-[13.5px] leading-relaxed text-fg">
-            <span className="mr-1.5 rounded bg-danger/15 px-1 py-px font-mono text-[11px] text-danger">{run.trigger.type}</span>
+            <span className="chip chip--attn mr-1.5">{run.trigger.type}</span>
             {run.trigger.text}
           </div>
         </div>
@@ -144,11 +144,11 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
           <>Worked for {elapsed}s · {run.steps.length} tool calls</>
         ) : (
           <>
-            <Loader2 size={13} className="animate-spin text-fg-2" />
+            <CircleNotch size={13} className="animate-spin text-fg-2" />
             Working · {elapsed}s
           </>
         )}
-        <ChevronRight size={13} className={`transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`} />
+        <CaretRight size={12} className={`transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`} />
       </button>
 
       {expanded && (
@@ -157,16 +157,16 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
             <li key={s.seq} className="step-in relative pb-3.5 last:pb-0">
               <span className="absolute top-[3px] -left-[23.5px] flex h-[14px] w-[14px] items-center justify-center rounded-full bg-[#2a2b2e]">
                 {!s.result ? (
-                  <Loader2 size={12} className="animate-spin text-fg-2" />
+                  <CircleNotch size={12} className="animate-spin text-fg-2" />
                 ) : s.result.ok ? (
-                  <Check size={12} className="text-fg-3" strokeWidth={2.5} />
+                  <Check size={12} className="text-fg-3" weight="bold" />
                 ) : (
-                  <X size={12} className="text-danger" strokeWidth={2.5} />
+                  <X size={12} className="text-fg" weight="bold" />
                 )}
               </span>
               <p className="font-mono text-[12px] leading-5 text-fg-2">{s.call}</p>
               {s.result && (
-                <p className={`mt-0.5 text-[12.5px] leading-snug ${s.result.ok ? 'text-fg-3' : 'text-danger'}`}>{s.result.summary}</p>
+                <p className={`mt-0.5 text-[12.5px] leading-snug ${s.result.ok ? 'text-fg-3' : 'font-medium text-fg'}`}>{s.result.summary}</p>
               )}
             </li>
           ))}
@@ -178,7 +178,7 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
       {run.resolved && (
         <div className="step-in mt-5 rounded-xl border border-line-strong bg-raised">
           <div className="flex items-center gap-2 px-3.5 pt-3 text-[13px] font-medium text-fg">
-            <ShieldCheck size={15} className="text-ok" />
+            <SealCheck size={16} weight="fill" className="text-fg" />
             {verified ? 'Outcome verified' : 'Closed'}
             <span className="ml-auto text-[11.5px] font-normal text-fg-4">{clock(run.resolved.ts)}</span>
           </div>
@@ -211,7 +211,12 @@ function ApprovalBlock({ approval }: { approval: Approval }) {
       <p className="mt-1 text-[13px] leading-relaxed text-fg-2">
         The truck stays held until you approve. The resume tool checks your approval and the worker's people-clear report again before RESUME is sent.
       </p>
-      {state.kind === 'error' && <p className="mt-2 text-[12px] text-danger">{state.message}</p>}
+      {state.kind === 'error' && (
+        <p className="mt-2 flex items-start gap-1.5 text-[12px] text-fg">
+          <WarningCircle size={14} className="mt-px shrink-0" />
+          {state.message}
+        </p>
+      )}
       <Button variant="solid" className="mt-3" onClick={() => void approve()} disabled={state.kind === 'sending'}>
         {state.kind === 'sending' ? 'Authorizing…' : 'Authorize resume'}
       </Button>
@@ -222,7 +227,7 @@ function ApprovalBlock({ approval }: { approval: Approval }) {
 function Empty() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 px-8 text-center">
-      <FireflyMark size={28} />
+      <FireflyMark width={52} strokeWidth={12} />
       <p className="text-[14px] text-fg-2">No open incidents</p>
       <p className="text-[13px] leading-relaxed text-fg-3">When a truck stops and reports BLOCKED, an agent picks it up and works it here.</p>
     </div>
@@ -271,7 +276,12 @@ function Composer({ run }: { run: AgentRun | null }) {
         aria-label="Note to Firefly"
         className="block w-full resize-none bg-transparent px-3.5 pt-3 text-[13.5px] text-fg placeholder:text-fg-4 focus:outline-none"
       />
-      {state.kind === 'error' && <p className="px-3.5 pt-1 text-[12px] text-danger">{state.message}</p>}
+      {state.kind === 'error' && (
+        <p className="flex items-start gap-1.5 px-3.5 pt-1 text-[12px] text-fg">
+          <WarningCircle size={14} className="mt-px shrink-0" />
+          {state.message}
+        </p>
+      )}
       <div className="flex items-center gap-2 px-2.5 pt-1 pb-2.5">
         <span className="text-[12px] text-fg-4">{run ? `Note on ${run.incidentId}` : 'Site note'} · from Maria</span>
         <button
@@ -280,7 +290,7 @@ function Composer({ run }: { run: AgentRun | null }) {
           aria-label="Send note"
           className="btn btn--solid ml-auto h-7 w-7 justify-center !p-0"
         >
-          {state.kind === 'sending' ? <Loader2 size={14} className="animate-spin" /> : <ArrowUp size={15} strokeWidth={2.4} />}
+          {state.kind === 'sending' ? <CircleNotch size={14} className="animate-spin" /> : <ArrowUp size={14} weight="bold" />}
         </button>
       </div>
     </div>

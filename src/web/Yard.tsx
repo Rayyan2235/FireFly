@@ -17,8 +17,8 @@ import { asphalt, cladding, concrete, doorPanels } from './yard/textures.ts';
 
 const BG = '#0c0d0f';
 const PAINT_WHITE = '#c9ccd0';
-const PAINT_YELLOW = '#8a7228';
-const PAINT_YELLOW_LIVE = '#d8b13a';
+const PAINT_GUIDE = '#6f747b'; // worn white paint
+const PAINT_GUIDE_LIVE = '#e6e8eb'; // reserved bay: fresh, bright
 const TRUCK_COLORS: Record<string, string> = {
   'T-1': '#e7e9ec',
   'T-2': '#1f2a3a',
@@ -154,7 +154,7 @@ function DoorBay({ door }: { door: Door }) {
   const x = doorX(door.id);
   const panel = useMemo(() => M.door(), []);
   const open = Boolean(door.occupant) && !door.closed;
-  const lineColor = door.reservedBy && !door.occupant ? PAINT_YELLOW_LIVE : PAINT_YELLOW;
+  const lineColor = door.reservedBy && !door.occupant ? PAINT_GUIDE_LIVE : PAINT_GUIDE;
   return (
     <group>
       {/* opening and interior */}
@@ -193,15 +193,15 @@ function DoorBay({ door }: { door: Door }) {
       {[-2.15, 2.15].map((dx) => (
         <Plane key={dx} w={0.12} d={10.5} x={x + dx} z={-14.3} color={lineColor} y={0.025} />
       ))}
-      {/* closed for operations: a red safety bar across the opening */}
+      {/* closed for operations: a safety bar across the opening */}
       {door.closed && (
         <mesh position={[x, 1.95, -19.6]}>
           <boxGeometry args={[3.5, 0.16, 0.08]} />
-          <meshStandardMaterial color="#b42a2a" roughness={0.5} />
+          <meshStandardMaterial color="#e6e8eb" roughness={0.5} />
         </mesh>
       )}
       {door.obstruction && <Pallet x={x + 0.4} z={-10.6} />}
-      <Label text={door.closed ? `${door.id} · closed` : String(door.id)} position={[x, 6.4, -19.4]} fg={door.closed ? '#ff8a8a' : '#c9ced6'} bg={door.closed ? '#3a1416' : null} size={1.5} />
+      <Label text={door.closed ? `${door.id} · closed` : String(door.id)} position={[x, 6.4, -19.4]} fg={door.closed ? '#08090a' : '#c9ced6'} bg={door.closed ? '#ffffff' : null} size={1.5} />
     </group>
   );
 }
@@ -258,8 +258,7 @@ function TruckModel({ truck, active }: { truck: Truck; active?: ActiveRoute }) {
   return (
     <group ref={ref} position={[truck.pose.x, 0, truck.pose.z]} rotation-y={truck.pose.heading}>
       <TruckRig color={TRUCK_COLORS[truck.id] ?? '#e7e9ec'} wheels={wheels} />
-      {held && <Plane w={3.6} d={11} x={0} z={0} color="#3a1416" y={0.03} />}
-      <Label text={held ? `${truck.id} · held` : truck.id} position={[0, 5.4, 0]} bg={held ? '#b42a2a' : '#1d1f23'} />
+      <Label text={held ? `${truck.id} · held` : truck.id} position={[0, 5.4, 0]} fg={held ? '#08090a' : '#ffffff'} bg={held ? '#ffffff' : '#1d1f23'} />
     </group>
   );
 }
