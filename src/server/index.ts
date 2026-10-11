@@ -1,7 +1,9 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import type { FireflyEvent } from '../contract.ts';
+import { ActionError, Actions } from './actions.ts';
 import { claude } from './agent/model.ts';
 import { AgentRunner } from './agent/runner.ts';
 import { Contention } from './contention.ts';
@@ -17,14 +19,29 @@ const PORT = Number(process.env.API_PORT ?? 8787);
 
 const world = new World(seedWorld());
 const contention = new Contention();
-// A truck's BLOCKED report opens an incident, and a free agent picks it up.
+// A truck's BLOCKED report opens an incident and a free agent picks it up.
+// A truck that reports again on an open incident is news for the agent already on it.
 const sim = new Simulator(world, (report) => {
-  openIncident(world, report);
-  runner.assign();
+  const incident = openIncident(world, report);
+  if (incident.status === 'queued') runner.assign();
+  else runner.wake(incident.id, ` reported BLOCKED again at Door ${report.door} (${report.reason.replace('_', ' ')}).`);
 });
 const dispatch = new Dispatch(world, sim);
 const runner = new AgentRunner({ world, sim, dispatch, contention, ask: claude() });
+const actions = new Actions(world, runner);
 const app = new Hono();
+
+/** Runs a person's action. One that can't be applied comes back as 409 with the reason, and changes nothing. */
+async function act(c: Context, run: (body: Record<string, unknown>) => void) {
+  const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
+  try {
+    run(body);
+    return c.json({ ok: true });
+  } catch (err) {
+    if (err instanceof ActionError) return c.json({ ok: false, message: err.message }, 409);
+    throw err;
+  }
+}
 
 function reset() {
   runner.stop();
@@ -97,6 +114,23 @@ app.post('/api/scenario/demo', (c) => {
   dispatch.startShift();
   return c.json({ ok: true });
 });
+
+/* ---------- the supervisor (console) ---------- */
+
+app.post('/api/note', (c) => act(c, (b) => actions.note(String(b.text ?? ''), typeof b.incident_id === 'string' ? b.incident_id : undefined)));
+app.post('/api/approvals/:id/approve', (c) => act(c, () => actions.approve(c.req.param('id'))));
+app.post('/api/corrections/:id/release', (c) => act(c, () => actions.releaseCorrection(c.req.param('id'))));
+
+/* ---------- workers (phone page) ---------- */
+
+app.post('/api/tasks/:id/accept', (c) => act(c, (b) => actions.answer(c.req.param('id'), String(b.worker ?? ''), true)));
+app.post('/api/tasks/:id/decline', (c) => act(c, (b) => actions.answer(c.req.param('id'), String(b.worker ?? ''), false)));
+app.post('/api/tasks/:id/report', (c) =>
+  act(c, (b) => {
+    if (b.what !== 'arrived' && b.what !== 'cleared' && b.what !== 'people_clear') throw new ActionError('Report must be arrived, cleared or people_clear.');
+    actions.report(c.req.param('id'), String(b.worker ?? ''), b.what);
+  }),
+);
 
 serve({ fetch: app.fetch, port: PORT }, (info) => {
   console.log(`Firefly server on http://localhost:${info.port}`);
