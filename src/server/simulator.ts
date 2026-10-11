@@ -44,6 +44,7 @@ export class Simulator {
   private readonly world: World;
   private readonly onBlocked: (report: BlockedReport) => void;
   private readonly timers = new Set<ReturnType<typeof setTimeout>>();
+  private readonly waiters = new Map<string, Set<(heard: boolean) => void>>();
 
   constructor(world: World, onBlocked: (report: BlockedReport) => void = () => {}) {
     this.world = world;
@@ -74,8 +75,30 @@ export class Simulator {
     return command;
   }
 
+  /**
+   * Waits for the controller's next word on a command, up to `ms`.
+   * `heard: false` means silence: the status is uncertain, never assumed to be success.
+   */
+  waitForChange(requestId: string, ms: number): Promise<{ heard: boolean }> {
+    return new Promise((resolve) => {
+      const waiting = this.waiters.get(requestId) ?? new Set();
+      this.waiters.set(requestId, waiting);
+      const finish = (heard: boolean) => {
+        waiting.delete(finish);
+        clearTimeout(timer);
+        this.timers.delete(timer);
+        resolve({ heard });
+      };
+      const timer = setTimeout(() => finish(false), ms);
+      this.timers.add(timer);
+      waiting.add(finish);
+    });
+  }
+
   /** Cancels every pending controller timer and forgets all commands (used by reset). */
   stop(): void {
+    for (const waiting of this.waiters.values()) for (const finish of [...waiting]) finish(false);
+    this.waiters.clear();
     for (const timer of this.timers) clearTimeout(timer);
     this.timers.clear();
     this.commands.clear();
@@ -93,12 +116,11 @@ export class Simulator {
           ? 'Not held, nothing to resume.'
           : null;
     if (refusal) {
-      command.status = 'rejected';
-      command.detail = refusal;
+      this.update(command, { status: 'rejected', detail: refusal });
       return;
     }
 
-    command.status = 'acknowledged';
+    this.update(command, { status: 'acknowledged' });
     this.say(command, 'ACK', `${command.requestId} accepted.`);
 
     if (truck.controller === 'docked') this.leaveDoor(truck);
@@ -140,7 +162,7 @@ export class Simulator {
         payload: { truckId: truck.id, controller: 'held', pose: { ...truck.pose } },
       });
       const what = reason === 'door_closed' ? `Door ${door.id} closed.` : `Obstruction on the Door ${door.id} approach.`;
-      command.detail = `Stopped: ${what}`;
+      this.update(command, { detail: `Stopped: ${what}` });
       const report = this.say(command, 'BLOCKED', `${what} Stopped on the approach lane.`);
       this.onBlocked({ truckId: truck.id, door: door.id, reason, seq: report.seq });
       return;
@@ -175,7 +197,7 @@ export class Simulator {
       summary: `${truck.id} docked at Door ${door.id}.`,
       payload: { truckId: truck.id, controller: 'docked', pose: { ...truck.pose } },
     });
-    command.status = 'completed';
+    this.update(command, { status: 'completed' });
     this.say(command, 'ARRIVED', `Docked at Door ${door.id}.`);
     door.occupant = truck.id;
     door.reservedBy = null;
@@ -210,6 +232,12 @@ export class Simulator {
       summary,
       payload: { ...door },
     });
+  }
+
+  /** Records a change to a command and wakes anyone waiting to hear about it. */
+  private update(command: Command, change: Partial<Command>): void {
+    Object.assign(command, change);
+    for (const finish of [...(this.waiters.get(command.requestId) ?? [])]) finish(true);
   }
 
   private truck(id: string): Truck {
