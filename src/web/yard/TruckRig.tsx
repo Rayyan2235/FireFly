@@ -59,7 +59,7 @@ function Wheel({ x, z, dual, set }: { x: number; z: number; dual?: boolean; set:
 
 const T = 2.0; // the tractor sits this far forward of where it was in the 10 m rig
 
-export function TruckRig({ color, wheels, withTractor = true, withTrailer = true }: { color: string; wheels: MutableRefObject<Group[]>; withTractor?: boolean; withTrailer?: boolean }) {
+export function TruckRig({ color, wheels, withTractor = true }: { color: string; wheels: MutableRefObject<Group[]>; withTractor?: boolean }) {
   const body = paint(color);
   const set = (i: number) => (g: Group | null) => {
     if (g) wheels.current[i] = g;
@@ -153,7 +153,6 @@ export function TruckRig({ color, wheels, withTractor = true, withTrailer = true
       </group>
 
       {/* ---------------- trailer: 9.2 m dry van ---------------- */}
-      <group visible={withTrailer}>
       <RoundedBox args={[2.52, 2.6, 9.16]} radius={0.06} smoothness={2} position={[0, 2.42, -0.28]} material={trailerMat()} castShadow receiveShadow />
       <mesh material={M.frame} position={[0, 1.02, -0.28]}>
         <boxGeometry args={[2.3, 0.22, 9.16]} />
@@ -200,10 +199,8 @@ export function TruckRig({ color, wheels, withTractor = true, withTrailer = true
         )),
       )}
 
-      </group>
-
       {/* ---------------- wheels ---------------- */}
-      {axles.filter((_, i) => (i < 3 ? withTractor : withTrailer)).flatMap((a, i, list) => [
+      {axles.filter((_, i) => withTractor || i >= 3).flatMap((a, i, list) => [
         <Wheel key={`l${a.z}`} x={-1.06} z={a.z} dual={a.dual} set={set(axles.indexOf(list[i]!) * 2)} />,
         <Wheel key={`r${a.z}`} x={1.06} z={a.z} dual={a.dual} set={set(axles.indexOf(list[i]!) * 2 + 1)} />,
       ])}
@@ -214,69 +211,43 @@ export function TruckRig({ color, wheels, withTractor = true, withTrailer = true
 /* ------------------------------------------------- a downloaded model, when there is one */
 
 export const TRUCK_GLB = '/models/truck.glb';
-export const TRAILER_GLB = '/models/trailer.glb';
 const GLB_YAW = 0; // set to Math.PI if the model's cab points the wrong way
-const TRAILER_YAW = 0; // set to Math.PI if the trailer's rear doors face the cab
-const TRAILER_LENGTH = 9.16;
-
-/** Clone a loaded model, let it cast shadows, and turn its longest side along z. */
-function prepare(scene: Group, yaw: number) {
-  const root = scene.clone(true);
-  root.traverse((o) => {
-    const m = o as Mesh;
-    if (m.isMesh) {
-      m.castShadow = true;
-      m.receiveShadow = true;
-    }
-  });
-  const size = new Box3().setFromObject(root).getSize(new Vector3());
-  if (size.x > size.z) root.rotation.y = Math.PI / 2;
-  root.rotation.y += yaw;
-  root.updateMatrixWorld(true);
-  return root;
-}
-
-/** Scale uniformly, then put the wheels on the ground, centre it, and pin one end in z. */
-function place(root: Group, scale: number, pin: { rear?: number; front?: number }) {
-  root.scale.setScalar(scale);
-  root.updateMatrixWorld(true);
-  const b = new Box3().setFromObject(root);
-  const z = pin.front !== undefined ? pin.front - b.max.z : pin.rear! - b.min.z;
-  root.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, z);
-}
-
-/** A downloaded trailer: scaled to the rig's trailer length, rear doors at the dock. */
-function GlbTrailer() {
-  const { scene } = useGLTF(TRAILER_GLB);
-  const fitted = useMemo(() => {
-    const root = prepare(scene, TRAILER_YAW);
-    const b = new Box3().setFromObject(root);
-    place(root, TRAILER_LENGTH / (b.max.z - b.min.z), { rear: RIG.rear });
-    return root;
-  }, [scene]);
-  return <primitive object={fitted} />;
-}
 
 /**
- * A downloaded truck. A whole rig (long and low) is scaled to the rig's length with its rear at the dock.
- * A tractor alone (short and tall) is scaled to a real 3.9 m cab height with its nose at the rig's front,
- * and pulls the downloaded trailer if there is one, else the procedural trailer.
+ * Fits a glTF truck into the rig's footprint: longest side along z, wheels on the ground.
+ * A whole rig (long and low) is scaled to the rig's length with its rear at the dock.
+ * A tractor alone (short and tall) is scaled to a real 3.9 m cab height, its nose at the rig's front,
+ * and pulls the procedural trailer.
  */
-function GlbTruck({ color, wheels, hasTrailer }: { color: string; wheels: MutableRefObject<Group[]>; hasTrailer: boolean }) {
-  const { scene } = useGLTF(TRUCK_GLB);
+function GlbTruck({ url, color, wheels }: { url: string; color: string; wheels: MutableRefObject<Group[]> }) {
+  const { scene } = useGLTF(url);
   const { fitted, tractorOnly } = useMemo(() => {
-    const root = prepare(scene, GLB_YAW);
-    const b = new Box3().setFromObject(root);
-    const length = b.max.z - b.min.z;
-    const height = b.max.y - b.min.y;
+    const root = scene.clone(true);
+    root.traverse((o) => {
+      const m = o as Mesh;
+      if (m.isMesh) {
+        m.castShadow = true;
+        m.receiveShadow = true;
+      }
+    });
+    const size = new Box3().setFromObject(root).getSize(new Vector3());
+    if (size.x > size.z) root.rotation.y = Math.PI / 2;
+    root.rotation.y += GLB_YAW;
+    root.updateMatrixWorld(true);
+    const box = new Box3().setFromObject(root);
+    const length = box.max.z - box.min.z;
+    const height = box.max.y - box.min.y;
     const tractorOnly = length / height < 2.6;
-    place(root, tractorOnly ? 3.9 / height : (RIG.front - RIG.rear) / length, tractorOnly ? { front: RIG.front } : { rear: RIG.rear });
+    root.scale.setScalar(tractorOnly ? 3.9 / height : (RIG.front - RIG.rear) / length);
+    root.updateMatrixWorld(true);
+    const b = new Box3().setFromObject(root);
+    const z = tractorOnly ? RIG.front - b.max.z : RIG.rear - b.min.z;
+    root.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, z);
     return { fitted: root, tractorOnly };
   }, [scene]);
-  const trailer = hasTrailer ? <GlbTrailer /> : <TruckRig color={color} wheels={wheels} withTractor={false} />;
   return (
     <>
-      {tractorOnly && trailer}
+      {tractorOnly && <TruckRig color={color} wheels={wheels} withTractor={false} />}
       <primitive object={fitted} />
     </>
   );
@@ -292,25 +263,15 @@ class Fallback extends Component<{ fallback: ReactNode; children: ReactNode }, {
   }
 }
 
-/** Downloaded models where they exist, procedural parts where they don't. Any file that fails to load falls back. */
-export function Truck3D({ color, wheels, hasTruck, hasTrailer }: { color: string; wheels: MutableRefObject<Group[]>; hasTruck: boolean; hasTrailer: boolean }) {
+/** The downloaded model when `hasModel`, else the procedural rig. A model that fails to load falls back too. */
+export function Truck3D({ color, wheels, hasModel }: { color: string; wheels: MutableRefObject<Group[]>; hasModel: boolean }) {
   const rig = <TruckRig color={color} wheels={wheels} />;
-  if (hasTruck)
-    return (
-      <Fallback fallback={rig}>
-        <Suspense fallback={rig}>
-          <GlbTruck color={color} wheels={wheels} hasTrailer={hasTrailer} />
-        </Suspense>
-      </Fallback>
-    );
-  if (hasTrailer)
-    return (
-      <Fallback fallback={rig}>
-        <Suspense fallback={rig}>
-          <TruckRig color={color} wheels={wheels} withTrailer={false} />
-          <GlbTrailer />
-        </Suspense>
-      </Fallback>
-    );
-  return rig;
+  if (!hasModel) return rig;
+  return (
+    <Fallback fallback={rig}>
+      <Suspense fallback={rig}>
+        <GlbTruck url={TRUCK_GLB} color={color} wheels={wheels} />
+      </Suspense>
+    </Fallback>
+  );
 }
