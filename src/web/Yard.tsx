@@ -9,7 +9,7 @@ import { YARD, doorX, parkX } from '../contract.ts';
 import type { Door, Truck } from '../contract.ts';
 import { lerpAngle, poseAt } from './route.ts';
 import type { ActiveRoute } from './useStream.ts';
-import { TRUCK_GLB, Truck3D, WHEEL_R } from './yard/TruckRig.tsx';
+import { TRAILER_GLB, TRUCK_GLB, Truck3D, WHEEL_R } from './yard/TruckRig.tsx';
 import { asphalt, cladding, concrete, doorPanels } from './yard/textures.ts';
 
 // A dusk yard, rendered physically: image-based reflections, soft shadows, ambient occlusion.
@@ -236,7 +236,7 @@ function Pallet({ x, z }: { x: number; z: number }) {
 
 /* ------------------------------------------------------------------ trucks */
 
-function TruckModel({ truck, active, hasModel }: { truck: Truck; active?: ActiveRoute; hasModel: boolean }) {
+function TruckModel({ truck, active, hasTruck, hasTrailer }: { truck: Truck; active?: ActiveRoute; hasTruck: boolean; hasTrailer: boolean }) {
   const ref = useRef<Group>(null);
   const wheels = useRef<Group[]>([]);
   useFrame((_, dt) => {
@@ -257,7 +257,7 @@ function TruckModel({ truck, active, hasModel }: { truck: Truck; active?: Active
   const held = truck.controller === 'held';
   return (
     <group ref={ref} position={[truck.pose.x, 0, truck.pose.z]} rotation-y={truck.pose.heading}>
-      <Truck3D color={TRUCK_COLORS[truck.id] ?? '#e7e9ec'} wheels={wheels} hasModel={hasModel} />
+      <Truck3D color={TRUCK_COLORS[truck.id] ?? '#e7e9ec'} wheels={wheels} hasTruck={hasTruck} hasTrailer={hasTrailer} />
       <Label text={held ? `${truck.id} · held` : truck.id} position={[0, 5.4, 1.2]} fg={held ? '#08090a' : '#ffffff'} bg={held ? '#ffffff' : '#1d1f23'} />
     </group>
   );
@@ -275,7 +275,8 @@ function useHasModel(url: string) {
 }
 
 export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]; routes: Record<string, ActiveRoute> }) {
-  const hasModel = useHasModel(TRUCK_GLB);
+  const hasTruck = useHasModel(TRUCK_GLB);
+  const hasTrailer = useHasModel(TRAILER_GLB);
   return (
     // The view is shifted right so the yard sits clear of the agent panel floating on the right.
     <Canvas shadows dpr={[1, 2]} camera={{ position: [30, 58, 84], fov: 34, near: 1, far: 400 }}>
@@ -296,7 +297,7 @@ export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]
         <DoorBay key={d.id} door={d} />
       ))}
       {trucks.map((t) => (
-        <TruckModel key={t.id} truck={t} active={routes[t.id]} hasModel={hasModel} />
+        <TruckModel key={t.id} truck={t} active={routes[t.id]} hasTruck={hasTruck} hasTrailer={hasTrailer} />
       ))}
       <OrbitControls target={[13, 0, -5]} enablePan={false} minPolarAngle={0.45} maxPolarAngle={1.25} minDistance={40} maxDistance={150} />
       <EffectComposer multisampling={0}>
