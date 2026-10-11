@@ -2,14 +2,25 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import type { FireflyEvent } from '../contract.ts';
+import { Dispatch } from './dispatch.ts';
+import { openIncident } from './incidents.ts';
+import { DEMO_SCENARIO, injectProblem } from './problems.ts';
 import { loadFixture, playFixture } from './replay.ts';
 import { seedWorld } from './seed.ts';
+import { Simulator } from './simulator.ts';
 import { World } from './world.ts';
 
 const PORT = Number(process.env.API_PORT ?? 8787);
 
-let world = new World(seedWorld());
+const world = new World(seedWorld());
+const sim = new Simulator(world, (report) => openIncident(world, report));
+const dispatch = new Dispatch(world, sim);
 const app = new Hono();
+
+function reset() {
+  sim.stop();
+  world.reset(seedWorld());
+}
 
 app.get('/api/health', (c) =>
   c.json({ ok: true, seq: world.state.seq, anthropicKey: Boolean(process.env.ANTHROPIC_API_KEY) }),
@@ -63,7 +74,15 @@ app.get('/api/stream', (c) => {
 });
 
 app.post('/api/reset', (c) => {
-  world = new World(seedWorld());
+  reset();
+  return c.json({ ok: true });
+});
+
+/** Run demo scenario: a fresh yard, the preset problems, then the shift starts. Trucks find the problems themselves. */
+app.post('/api/scenario/demo', (c) => {
+  reset();
+  for (const problem of DEMO_SCENARIO) injectProblem(world, problem, 'demo scenario');
+  dispatch.startShift();
   return c.json({ ok: true });
 });
 
