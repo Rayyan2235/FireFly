@@ -1,8 +1,7 @@
-import { Component, Suspense, useMemo } from 'react';
-import type { MutableRefObject, ReactNode } from 'react';
-import { RoundedBox, useGLTF } from '@react-three/drei';
-import { Box3, MeshPhysicalMaterial, MeshStandardMaterial, Vector3 } from 'three';
-import type { Group, Mesh } from 'three';
+import type { MutableRefObject } from 'react';
+import { RoundedBox } from '@react-three/drei';
+import { MeshPhysicalMaterial, MeshStandardMaterial } from 'three';
+import type { Group } from 'three';
 import { trailerSkin } from './textures.ts';
 
 // A procedural autonomous tractor-trailer. Local space: +z is the cab end (heading 0 faces +z), y is up.
@@ -205,58 +204,5 @@ export function TruckRig({ color, wheels }: { color: string; wheels: MutableRefO
         <Wheel key={`r${i}`} x={1.06} z={a.z} dual={a.dual} set={set(i * 2 + 1)} />,
       ])}
     </group>
-  );
-}
-
-/* ------------------------------------------------- a downloaded model, when there is one */
-
-export const TRUCK_GLB = '/models/truck.glb';
-const GLB_YAW = 0; // set to Math.PI if the model's cab points the wrong way
-
-/** Fits any glTF truck into the rig's footprint: longest side along z, wheels on the ground, rear at RIG.rear. */
-function GlbTruck({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
-  const fitted = useMemo(() => {
-    const root = scene.clone(true);
-    root.traverse((o) => {
-      const m = o as Mesh;
-      if (m.isMesh) {
-        m.castShadow = true;
-        m.receiveShadow = true;
-      }
-    });
-    const size = new Box3().setFromObject(root).getSize(new Vector3());
-    if (size.x > size.z) root.rotation.y = Math.PI / 2;
-    root.rotation.y += GLB_YAW;
-    const box = new Box3().setFromObject(root);
-    const s = (RIG.front - RIG.rear) / (box.max.z - box.min.z);
-    root.scale.setScalar(s);
-    const b = new Box3().setFromObject(root);
-    root.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, RIG.rear - b.min.z);
-    return root;
-  }, [scene]);
-  return <primitive object={fitted} />;
-}
-
-class Fallback extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? this.props.fallback : this.props.children;
-  }
-}
-
-/** The downloaded model when `hasModel`, else the procedural rig. A model that fails to load falls back too. */
-export function Truck3D({ color, wheels, hasModel }: { color: string; wheels: MutableRefObject<Group[]>; hasModel: boolean }) {
-  const rig = <TruckRig color={color} wheels={wheels} />;
-  if (!hasModel) return rig;
-  return (
-    <Fallback fallback={rig}>
-      <Suspense fallback={rig}>
-        <GlbTruck url={TRUCK_GLB} />
-      </Suspense>
-    </Fallback>
   );
 }
