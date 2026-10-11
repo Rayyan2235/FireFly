@@ -3,7 +3,8 @@ import type { RefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { CanvasTexture, Object3D, SRGBColorSpace, Vector3 } from 'three';
 import type { Group, InstancedMesh } from 'three';
-import { Truck } from '../three/Truck.tsx';
+import { Truck, createCabProfile } from '../three/Truck.tsx';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import type { TruckPart } from '../three/Truck.tsx';
 import { YARD, doorX } from '../../contract.ts';
 import { getStoryFrame } from './story.ts';
@@ -32,9 +33,12 @@ function DockNumber({ number }: { number: number }) {
   </sprite>;
 }
 
-// The seven background rigs share geometry/materials and use three draw calls.
+// The seven background rigs share geometry/materials and use four draw calls.
 function Fleet() {
-  const trailers = useRef<InstancedMesh>(null), cabs = useRef<InstancedMesh>(null), wheels = useRef<InstancedMesh>(null);
+  const trailers = useRef<InstancedMesh>(null), cabs = useRef<InstancedMesh>(null), wheels = useRef<InstancedMesh>(null), glass = useRef<InstancedMesh>(null);
+  const profile = useMemo(createCabProfile, []);
+  const trailerGeometry = useMemo(() => new RoundedBoxGeometry(2.6, 2.9, 12.3, 2, 0.1), []);
+  const cabOptions = useMemo(() => ({ depth: 2.18, bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.08, bevelSegments: 2, steps: 1, curveSegments: 6 }), []);
   useLayoutEffect(() => {
     const dummy = new Object3D();
     const docks = [1, 2, 3, 4, 5, 6, 8];
@@ -42,17 +46,19 @@ function Fleet() {
       const x = doorX(door);
       dummy.rotation.set(0, 0, 0);
       dummy.position.set(x, 2.5, -13); dummy.updateMatrix(); trailers.current!.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(x, 1.95, -5.3); dummy.updateMatrix(); cabs.current!.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(x - 1.09, 0, -10.65); dummy.rotation.y = Math.PI / 2; dummy.updateMatrix(); cabs.current!.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(x, 2.985, -4.18); dummy.rotation.set(-0.55, 0, 0); dummy.updateMatrix(); glass.current!.setMatrixAt(i, dummy.matrix);
       [-17, -15.7, -8, -5].forEach((z, axle) => [-1, 1].forEach((side, s) => {
-        dummy.position.set(x + side * 1.08, 0.55, z); dummy.rotation.z = Math.PI / 2; dummy.updateMatrix();
+        dummy.position.set(x + side * 1.08, 0.55, z); dummy.rotation.set(0, 0, Math.PI / 2); dummy.updateMatrix();
         wheels.current!.setMatrixAt(i * 8 + axle * 2 + s, dummy.matrix);
       }));
     });
-    for (const ref of [trailers, cabs, wheels]) { ref.current!.instanceMatrix.needsUpdate = true; ref.current!.computeBoundingSphere(); }
+    for (const ref of [trailers, cabs, wheels, glass]) { ref.current!.instanceMatrix.needsUpdate = true; ref.current!.computeBoundingSphere(); }
   }, []);
   return <group>
-    <instancedMesh ref={trailers} args={[undefined, undefined, 7]} castShadow><boxGeometry args={[2.6, 2.9, 12.3]} /><meshStandardMaterial color="#717c8b" roughness={0.65} metalness={0.3} /></instancedMesh>
-    <instancedMesh ref={cabs} args={[undefined, undefined, 7]} castShadow><boxGeometry args={[2.4, 2.7, 2.8]} /><meshStandardMaterial color="#4e5d6b" roughness={0.45} metalness={0.4} /></instancedMesh>
+    <instancedMesh ref={trailers} geometry={trailerGeometry} args={[undefined, undefined, 7]} castShadow><meshStandardMaterial color="#717c8b" roughness={0.65} metalness={0.3} /></instancedMesh>
+    <instancedMesh ref={cabs} args={[undefined, undefined, 7]} castShadow><extrudeGeometry args={[profile, cabOptions]} /><meshStandardMaterial color="#4e5d6b" roughness={0.45} metalness={0.4} /></instancedMesh>
+    <instancedMesh ref={glass} args={[undefined, undefined, 7]}><planeGeometry args={[2.03, 0.94]} /><meshStandardMaterial color="#102531" metalness={0.75} roughness={0.15} /></instancedMesh>
     <instancedMesh ref={wheels} args={[undefined, undefined, 56]}><cylinderGeometry args={[0.55, 0.55, 0.4, 12]} /><meshStandardMaterial color="#12171c" /></instancedMesh>
   </group>;
 }
@@ -104,11 +110,15 @@ export function Scene({ progress, beat, selected, onSelect, hotspots, reducedMot
       if (inspecting && selected) cameraDestination.sub(target).multiplyScalar(1.3).add(target);
       target.y += inspecting && selected ? 3.8 : 6;
       cameraDestination.y += 6;
-      if (beat === 0 || beat === 6) {
+      if (beat === 6) {
         target.z += frame.truckZ;
         cameraDestination.z += 10;
         cameraDestination.sub(target).multiplyScalar(1.25).add(target);
       }
+    }
+    if (size.width < 760 && beat === 0) {
+      cameraDestination.set(40, 12, 38);
+      target.set(15, -1.7, 4);
     }
     const ease = reducedMotion ? 1 : 1 - Math.exp(-delta * 5);
     camera.position.lerp(cameraDestination, ease);
@@ -136,14 +146,14 @@ export function Scene({ progress, beat, selected, onSelect, hotspots, reducedMot
     <color attach="background" args={['#08090a']} />
     <fog attach="fog" args={['#08090a', 55, 145]} />
     <hemisphereLight args={['#a6bdd5', '#20201b', 1.9]} />
-    <directionalLight position={[15, 28, 12]} intensity={3.5} color="#e8edf5" castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.0005}>
+    <directionalLight position={[15, 28, 12]} intensity={4} color="#e8edf5" castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.0005}>
       <orthographicCamera attach="shadow-camera" args={[-40, 40, 35, -35, 1, 100]} />
     </directionalLight>
-    <directionalLight position={[-15, 8, -18]} intensity={2.5} color="#c9a762" />
+    <directionalLight position={[-15, 8, -18]} intensity={3} color="#b5c4dd" />
     <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[260, 260]} /><meshStandardMaterial color="#101419" roughness={0.85} /></mesh>
     <group ref={yard}><Warehouse /></group>
     <group ref={rig} position={[15, 0, 4]}>
-      <Truck color="#b4bdc8" scan={beat === 2} highlight={beat === 3 ? selected ?? undefined : undefined} onPartClick={pick} animate={!reducedMotion} />
+      <Truck color="#adb9c6" scan={beat === 2} highlight={beat === 3 ? selected ?? undefined : undefined} onPartClick={pick} animate={!reducedMotion} />
     </group>
     <group ref={pallet} position={[15, 7, -11]}><Pallet /></group>
     {beat === 2 && <group ref={radar} position={[15, 0.06, 0]} rotation-x={-Math.PI / 2}>

@@ -2,6 +2,8 @@ import { Component, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PCFShadowMap } from 'three';
+import { ArrowRight, ArrowLeft, Plus } from 'lucide-react';
+import { PrismaHero, PrismaAction } from './components/ui/prisma-hero.tsx';
 import { Scene, parts } from './Scene.tsx';
 import type { InspectPart } from './Scene.tsx';
 
@@ -11,12 +13,6 @@ const details: Record<InspectPart, { title: string; text: string }> = {
   compute: { title: 'Decisions on the vehicle.', text: 'Onboard compute turns sensor input into local driving decisions. The truck controller acknowledges a requested move before motion starts.' },
   cab: { title: 'A truck on the shared channel.', text: 'The vehicle carries out controller-accepted movement. Firefly coordinates the job across the truck, the supervisor and the people working nearby.' },
 };
-function Arrow({ down = false }: { down?: boolean }) {
-  return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" style={down ? { transform: 'rotate(90deg)' } : undefined}><path d="M4 12h15m-6-6 6 6-6 6" /></svg>;
-}
-function Mark() {
-  return <svg viewBox="0 0 32 32" width="24" height="24" fill="none" aria-hidden="true"><path d="m18 3-11 15h9l-2 11 12-16h-9z" fill="currentColor" /></svg>;
-}
 class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
@@ -48,7 +44,11 @@ export function Landing() {
       progress.current = p;
       setBeat(Math.round(p));
       panels.current.forEach((panel, i) => {
-        if (panel) panel.style.opacity = String(motionReduced ? 1 : Math.max(0, 1 - Math.abs(p - i) * 1.7));
+        if (panel) {
+          const opacity = motionReduced ? Number(Math.round(p) === i) : Math.max(0, 1 - Math.abs(p - i) * 1.7);
+          panel.style.opacity = String(opacity);
+          panel.inert = opacity === 0;
+        }
       });
     };
     const schedule = () => { if (!request) request = requestAnimationFrame(update); };
@@ -58,13 +58,17 @@ export function Landing() {
   useEffect(() => { if (beat !== 3) setSelected(null); }, [beat]);
   const select = (part: InspectPart) => setSelected(part);
   const go = (index: number) => sections.current[index]?.scrollIntoView({ behavior: motionReduced ? 'instant' : 'smooth' });
-  return <>
+  return <div className={`landing ${beat === 0 ? 'is-hero' : 'is-story'}`}>
     <a className="skip-link" href="#story">Skip to the story</a>
     <header className="nav">
-      <a className="brand" href="#beginning" aria-label="Firefly, back to the beginning"><Mark />Firefly</a>
-      <span className="twin-label"><span />Twin mode · simulated trucks</span>
-      <a className="nav-console" href="/">Open the console <Arrow /></a>
+      <nav aria-label="Main navigation" className="nav-tab">
+        <button onClick={() => go(1)}>The yard</button>
+        <button onClick={() => go(3)}>The truck</button>
+        <a href="/">Open the console <ArrowRight size={14} strokeWidth={1.5} aria-hidden="true" /></a>
+      </nav>
     </header>
+    <a className="small-wordmark" href="#beginning">Firefly</a>
+    <span className="twin-label"><span />Twin mode · simulated trucks</span>
     <div className="scene" aria-hidden="true">
       <SceneBoundary><Canvas frameloop={motionReduced ? 'demand' : 'always'} shadows={{ type: PCFShadowMap }} dpr={[1, 1.5]} camera={{ position: [35, 11, 26], fov: 42, near: 0.1, far: 250 }} gl={{ antialias: true, powerPreference: 'high-performance' }} fallback={<div className="scene-fallback">3D needs WebGL. The full story is available below.</div>}>
         <Scene progress={progress} beat={beat} selected={selected} onSelect={select} hotspots={hotspots} reducedMotion={motionReduced} />
@@ -72,16 +76,12 @@ export function Landing() {
     </div>
     <div className="scene-shade" aria-hidden="true" />
     <div className="hotspots" aria-label="Truck inspection hotspots" hidden={beat !== 3}>
-      {parts.map(part => <button key={part} ref={el => { hotspots.current[part] = el; }} className={`hotspot hotspot-${part}`} aria-label={`Inspect ${part}`} aria-pressed={selected === part} onClick={() => select(part)}><span className="hotspot-dot" /><span>{part === 'lidar' ? 'Lidar' : part === 'compute' ? 'Compute' : 'Cab'}</span></button>)}
+      {parts.map(part => <button key={part} ref={el => { hotspots.current[part] = el; }} className={`hotspot hotspot-${part}`} aria-label={`Inspect ${part}`} aria-pressed={selected === part} onClick={() => select(part)}><span className="hotspot-dot"><Plus size={13} strokeWidth={1.5} aria-hidden="true" /></span><span>{part === 'lidar' ? 'Lidar' : part === 'compute' ? 'Compute' : 'Cab'}</span></button>)}
     </div>
     <main id="story">
       {chapters.map((chapter, i) => <section key={chapter} id={i === 0 ? 'beginning' : `chapter-${i}`} className={`chapter chapter-${i}`} aria-label={chapter} ref={el => { sections.current[i] = el; }}>
         <div className="copy" ref={el => { panels.current[i] = el; }}>
-          {i === 0 && <>
-            <h1>Keep the<br />yard moving.</h1>
-            <p>When the physical world interrupts the plan,<br className="desktop-break" /> Firefly brings agents, robots and people together<br className="desktop-break" /> to see the work through.</p>
-            <button className="text-action" onClick={() => go(1)}>Explore the yard <Arrow down /></button>
-          </>}
+          {i === 0 && <PrismaHero onExplore={() => go(1)} reduceMotion={motionReduced} />}
           {i === 1 && <>
             <h2>A moving world.<br />A shared picture.</h2>
             <p>Eight dock doors. Trucks arriving, backing in, moving on. Every job depends on what is happening around it.</p>
@@ -100,7 +100,7 @@ export function Landing() {
               {parts.map(part => <button key={part} aria-pressed={selected === part} onClick={() => select(part)}>{part === 'lidar' ? 'Lidar' : part === 'compute' ? 'Compute' : 'Cab'}</button>)}
             </div>
             <div className="part-card" aria-live="polite" aria-atomic="true">
-              {selected ? <><h3>{details[selected].title}</h3><p>{details[selected].text}</p><button className="text-action" onClick={() => setSelected(null)}>View the whole truck <Arrow /></button></> : <p>Select a sensor hotspot or a component above to take a closer look.</p>}
+              {selected ? <><h3>{details[selected].title}</h3><p>{details[selected].text}</p><button className="text-action" onClick={() => setSelected(null)}>View the whole truck <ArrowRight size={16} strokeWidth={1.5} aria-hidden="true" /></button></> : <p>Select a sensor hotspot or a component above to take a closer look.</p>}
             </div>
           </>}
           {i === 4 && <>
@@ -119,18 +119,22 @@ export function Landing() {
           {i === 6 && <>
             <h2>The next move<br />is yours.</h2>
             <p>Step into the simulated yard. Cause an exception.<br className="desktop-break" /> Watch the work unfold in the live console.</p>
-            <a className="primary-action" href="/">Open the console <Arrow /></a>
+            <PrismaAction href="/">Open the console</PrismaAction>
             <p className="closing">Firefly — the operating system<br />for agents, robots and people.</p>
           </>}
         </div>
       </section>)}
     </main>
-    <aside className="story-rail" aria-label="Story chapters">
-      {chapters.map((chapter, i) => <button key={chapter} aria-label={`Go to ${chapter.toLowerCase()}`} aria-current={beat === i ? 'step' : undefined} onClick={() => go(i)}><span /></button>)}
-    </aside>
     <footer className="scene-footer">
-      <span>{beat === 0 ? 'A shared world. A way forward.' : chapters[beat]}</span>
-      <div><span className="illustration-label">Interactive illustration</span><button onClick={() => setPaused(value => !value)} disabled={reducedMotion} aria-pressed={motionReduced}>{reducedMotion ? 'Reduced motion on' : paused ? 'Resume motion' : 'Reduce motion'}</button></div>
+      <span className="illustration-label">Interactive illustration</span>
+      <div className="footer-controls">
+        <button className="motion-control" onClick={() => setPaused(value => !value)} disabled={reducedMotion} aria-pressed={motionReduced}>{reducedMotion ? 'Reduced motion on' : paused ? 'Resume motion' : 'Reduce motion'}</button>
+        <nav className="chapter-controls" aria-label="Story chapters">
+          <button aria-label="Previous chapter" disabled={beat === 0} onClick={() => go(beat - 1)}><ArrowLeft size={16} strokeWidth={1.5} aria-hidden="true" /></button>
+          <span>{chapters[beat]}</span>
+          <button aria-label="Next chapter" disabled={beat === 6} onClick={() => go(beat + 1)}><ArrowRight size={16} strokeWidth={1.5} aria-hidden="true" /></button>
+        </nav>
+      </div>
     </footer>
-  </>;
+  </div>;
 }

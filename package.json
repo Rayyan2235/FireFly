@@ -17,7 +17,9 @@
     "@hono/node-server": "^2.1.4",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.1",
+    "framer-motion": "^14.1.0",
     "hono": "^4.13.13",
+    "lucide-react": "^1.55.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "three": "^0.186.1"

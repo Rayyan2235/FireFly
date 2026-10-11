@@ -1,6 +1,6 @@
 type V3 = [number, number, number];
 const shots: { camera: V3; target: V3 }[] = [
-  { camera: [35, 11, 26], target: [8, 1.8, 0] },
+  { camera: [35, 8, 26], target: [15, -1.6, 2] },
   { camera: [43, 38, 48], target: [0, 0, -6] },
   { camera: [32, 19, 7], target: [10, 0, -4] },
   { camera: [28, 11, 18], target: [11, 2, 3] },
