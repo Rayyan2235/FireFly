@@ -1,6 +1,8 @@
 import { MongoClient } from 'mongodb';
 import type { Collection, Document } from 'mongodb';
 import type { Correction, EventInput, FireflyEvent } from '../contract.ts';
+import { lanePipeline } from './lanes.ts';
+import type { Lane, LaneStats } from './lanes.ts';
 import type { Fixture } from './replay.ts';
 
 type Recorded = FireflyEvent & { shift: string; at: Date };
@@ -126,6 +128,12 @@ export class FlightRecorder {
         return { at, ...(event as EventInput) };
       }),
     };
+  }
+
+  /** Trip statistics for one lane, computed here from the imported public dataset (`lane_trips`). */
+  async laneStats(lane: Lane): Promise<LaneStats | null> {
+    const [stats] = await this.client.db().collection('lane_trips').aggregate<LaneStats>(lanePipeline(lane), { maxTimeMS: 5000 }).toArray();
+    return stats ?? null;
   }
 
   /* ---------- memory: what earlier shifts recorded ---------- */
