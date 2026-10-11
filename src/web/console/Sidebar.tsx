@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
 import { HardHat, Robot, Truck, User } from '@phosphor-icons/react';
 import type { WorldSnapshot } from '../../contract.ts';
+import { displayWorkerNames } from '../workerNames.ts';
+import { WorkerLauncher } from './WorkerLauncher.tsx';
+import { ServerAction } from './ServerAction.tsx';
+import { Reliability } from './Reliability.tsx';
 import { FireflyMark, StatusIcon } from './bits.tsx';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -38,6 +42,7 @@ export function Sidebar({
         </div>
       </div>
 
+      <WorkerLauncher />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <Section title="Incidents">
           {incidents.length === 0 ? (
@@ -54,7 +59,7 @@ export function Sidebar({
                   >
                     <StatusIcon status={i.status} />
                     <span className="shrink-0 font-mono text-[11.5px] text-fg-3">{i.id}</span>
-                    <span className="truncate">{i.title}</span>
+                    <span className="truncate">{displayWorkerNames(i.title)}</span>
                   </button>
                 </li>
               ))}
@@ -69,10 +74,11 @@ export function Sidebar({
             <ul className="space-y-1">
               {rules.map((r) => (
                 <li key={r.id} className="rounded-md px-2 py-1.5 text-[13px] leading-snug text-fg-2">
-                  {r.interpretation}
+                  {displayWorkerNames(r.interpretation)}
                   <span className="mt-0.5 block text-[11.5px] text-fg-4">
-                    {r.source} · until {r.releaseCondition}
+                    {displayWorkerNames(r.source)} · until {displayWorkerNames(r.releaseCondition)}
                   </span>
+                  <ServerAction path={`/api/corrections/${encodeURIComponent(r.id)}/release`} label="Maintenance cleared" />
                 </li>
               ))}
             </ul>
@@ -88,13 +94,14 @@ export function Sidebar({
               <Row
                 key={w.id}
                 icon={w.equipment ? <HardHat size={15} /> : <User size={15} />}
-                name={w.equipment ? `${w.name} · ${w.equipment}` : w.name}
+                name={w.equipment ? `${displayWorkerNames(w.name)} · ${w.equipment}` : displayWorkerNames(w.name)}
                 detail={w.status.replace('_', ' ')}
               />
             ))}
             <Row icon={<Truck size={15} />} name={`${trucks.length} trucks`} detail={held ? `${held} held` : 'none held'} alert={held > 0} />
           </ul>
         </Section>
+        <Reliability seq={world?.seq} />
       </div>
 
       <p className="mt-3 flex items-center gap-2 rounded-md border border-line px-2.5 py-2 text-[12px] text-fg-3">

@@ -1,4 +1,5 @@
 import type { FireflyEvent, MessageType, RadioMessage } from '../../contract.ts';
+import { displayWorkerNames } from '../workerNames.ts';
 import { clock } from './bits.tsx';
 
 // A worker asking Firefly for help is the only message that stands out.
@@ -24,11 +25,11 @@ export function RadioLog({ events }: { events: FireflyEvent[] }) {
               <li key={e.seq} className="step-in grid grid-cols-[52px_auto_1fr] items-baseline gap-x-2 rounded-md px-2 py-1 text-[12.5px]">
                 <span className="font-mono text-[11px] text-fg-4 tabular-nums">{clock(e.ts)}</span>
                 <span className="whitespace-nowrap text-fg-3">
-                  {m.from} <span className="text-fg-4">→</span> {m.to}
+                  {displayWorkerNames(m.from)} <span className="text-fg-4">→</span> {displayWorkerNames(m.to)}
                 </span>
                 <span className="min-w-0 truncate text-fg-2">
                   <span className={`chip mr-1.5 ${ATTENTION.includes(m.type) ? 'chip--attn' : ''}`}>{m.type}</span>
-                  {m.text}
+                  {displayWorkerNames(m.text)}
                 </span>
               </li>
             );

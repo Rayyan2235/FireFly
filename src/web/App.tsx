@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { WorldSnapshot } from '../contract.ts';
 import { useStream } from './useStream.ts';
+import { postAction } from './api.ts';
+import { ProblemControl } from './console/ProblemControl.tsx';
 import { Yard } from './Yard.tsx';
 import { AgentPanel } from './console/AgentPanel.tsx';
 import { RadioLog } from './console/RadioLog.tsx';
@@ -34,7 +36,8 @@ export function App() {
             {connected ? 'Live' : 'Connecting…'}
             <span className="font-mono text-[11.5px] text-fg-4 tabular-nums">seq {world?.seq ?? 0}</span>
           </span>
-          <span className="ml-auto flex items-center gap-6">
+          <span className="ml-auto flex items-center gap-4">
+            <ProblemControl events={shift} connected={connected} />
             <Button variant="link" href="/api/record" download="firefly-work-record.json">
               Export record
             </Button>
@@ -53,6 +56,7 @@ export function App() {
             runs={runs}
             incidents={world?.incidents ?? []}
             approvals={world?.approvals ?? []}
+            trucks={world?.trucks ?? []}
             selected={selected}
             onSelect={setPicked}
           />
@@ -68,20 +72,16 @@ export function App() {
  */
 function ShiftLever({ world }: { world: WorldSnapshot | null }) {
   const running = Boolean(world && (world.incidents.length > 0 || world.trucks.some((t) => t.controller === 'moving' || t.controller === 'held')));
-  const [on, setOn] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const checked = on ?? running;
+  const checked = running;
 
   async function shift(next: boolean) {
     setBusy(true);
     setError(null);
-    setOn(next);
     try {
-      const res = await fetch(next ? '/api/scenario/demo' : '/api/reset', { method: 'POST' });
-      if (!res.ok) throw new Error(`Server answered ${res.status}`);
+      await postAction(next ? '/api/scenario/demo' : '/api/reset');
     } catch (err) {
-      setOn(!next);
       setError(err instanceof Error ? err.message : 'Server unreachable');
     } finally {
       setBusy(false);

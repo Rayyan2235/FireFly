@@ -68,6 +68,9 @@ function apply(state: StreamState, e: FireflyEvent, at: number): StreamState {
     case 'approval.changed':
       w.approvals = upsert(w.approvals, e.payload as FireflyEvent<'approval.changed'>['payload']);
       break;
+    case 'equipment.changed':
+      w.equipment = upsert(w.equipment, e.payload as FireflyEvent<'equipment.changed'>['payload']);
+      break;
     case 'worker.changed':
       w.workers = upsert(w.workers, e.payload as FireflyEvent<'worker.changed'>['payload']);
       break;
