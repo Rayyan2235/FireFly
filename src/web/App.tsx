@@ -2,7 +2,7 @@ import type { FireflyEvent, RadioMessage } from '../contract.ts';
 import { useStream } from './useStream.ts';
 import { Yard } from './Yard.tsx';
 
-// Starting shell for the console. Rayyan owns the screens from here.
+// Starting shell for the console. Muhammad owns the screens from here.
 export function App() {
   const { connected, world, events, routes } = useStream();
   const radio = events.filter((e) => e.type === 'radio').slice(-40).reverse();
