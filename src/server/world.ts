@@ -22,6 +22,21 @@ export class World {
     return event;
   }
 
+  /**
+   * Back to the start of shift. The event log and `seq` carry on, and saved
+   * corrections survive: clearing a scenario is not clearing what Maria told us.
+   */
+  reset(initial: WorldSnapshot): void {
+    this.state = { ...initial, seq: this.state.seq, corrections: this.state.corrections };
+    this.emit({
+      type: 'world.reset',
+      actor: { kind: 'system', id: 'scenario' },
+      source_mode: 'system',
+      summary: 'Yard reset to the start of shift.',
+      payload: { ...this.snapshot(), seq: this.state.seq + 1 },
+    });
+  }
+
   /** Events after `seq`, for reconnecting clients. */
   since(seq: number): FireflyEvent[] {
     return this.log.filter((e) => e.seq > seq);
