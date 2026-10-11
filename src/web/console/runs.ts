@@ -36,7 +36,18 @@ export function deriveRuns(events: FireflyEvent[]): AgentRun[] {
     return run;
   };
 
+  // A truck reports BLOCKED before its incident exists, so the report is matched up when the incident opens.
+  const blockedBySeq = new Map<number, RadioMessage & { ts: string }>();
+  const blockedByTruck = new Map<string, RadioMessage & { ts: string }>();
+
   for (const e of events) {
+    if (e.type === 'radio') {
+      const m = (e as FireflyEvent<'radio'>).payload;
+      if (m.type === 'BLOCKED') {
+        blockedBySeq.set(e.seq, { ...m, ts: e.ts });
+        blockedByTruck.set(m.from, { ...m, ts: e.ts });
+      }
+    }
     if (!e.incident_id) continue;
     switch (e.type) {
       case 'incident.opened':
@@ -45,6 +56,7 @@ export function deriveRuns(events: FireflyEvent[]): AgentRun[] {
         const inc = (e as FireflyEvent<'incident.opened'>).payload;
         run.title = inc.title;
         run.agentId = inc.agentId ?? run.agentId;
+        run.trigger ??= (e.caused_by !== undefined ? blockedBySeq.get(e.caused_by) : undefined) ?? (inc.truckId ? blockedByTruck.get(inc.truckId) : undefined);
         break;
       }
       case 'incident.resolved': {

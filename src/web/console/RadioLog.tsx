@@ -7,10 +7,10 @@ const tone: Partial<Record<MessageType, string>> = {
   ARRIVED: 'bg-ok/15 text-ok',
   DONE: 'bg-ok/15 text-ok',
   CLEAR: 'bg-ok/15 text-ok',
-  GO_TO: 'bg-glow/15 text-glow',
-  RESUME: 'bg-glow/15 text-glow',
-  HOLD: 'bg-glow/15 text-glow',
-  TASK: 'bg-glow/15 text-glow',
+  GO_TO: 'bg-hover text-fg',
+  RESUME: 'bg-hover text-fg',
+  HOLD: 'bg-hover text-fg',
+  TASK: 'bg-hover text-fg',
 };
 
 /** The one channel every worker talks on. Newest at the bottom, like a radio. */
@@ -18,7 +18,7 @@ export function RadioLog({ events }: { events: FireflyEvent[] }) {
   const radio = events.filter((e) => e.type === 'radio').slice(-6);
 
   return (
-    <section aria-label="Radio" className="glass absolute bottom-4 left-4 w-[460px] rounded-xl">
+    <section aria-label="Radio" className="glass absolute bottom-4 left-4 w-[460px] rounded-2xl">
       <header className="flex items-baseline gap-2 px-4 pt-3 pb-2">
         <h2 className="text-[13px] font-medium text-fg">Radio</h2>
         <span className="text-[11.5px] text-fg-4">message names modeled on VDA 5050</span>

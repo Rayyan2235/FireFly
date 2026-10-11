@@ -53,7 +53,7 @@ export function Sidebar({
                     }`}
                   >
                     <StatusIcon status={i.status} />
-                    <span className="font-mono text-[11.5px] text-fg-3">{i.id}</span>
+                    <span className="shrink-0 font-mono text-[11.5px] text-fg-3">{i.id}</span>
                     <span className="truncate">{i.title}</span>
                   </button>
                 </li>
@@ -108,9 +108,9 @@ export function Sidebar({
 function Row({ icon, name, detail, busy, alert }: { icon: ReactNode; name: string; detail: string; busy?: boolean; alert?: boolean }) {
   return (
     <li className="flex items-center gap-2.5 rounded-md px-2 py-[5px]">
-      <span className={busy ? 'text-glow' : 'text-fg-3'}>{icon}</span>
+      <span className={busy ? 'text-fg' : 'text-fg-3'}>{icon}</span>
       <span className="truncate text-fg-2">{name}</span>
-      <span className={`ml-auto shrink-0 text-[12px] ${alert ? 'text-danger' : busy ? 'text-glow' : 'text-fg-4'}`}>{detail}</span>
+      <span className={`ml-auto shrink-0 text-[12px] ${alert ? 'text-danger' : busy ? 'text-fg' : 'text-fg-4'}`}>{detail}</span>
     </li>
   );
 }

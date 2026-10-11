@@ -41,6 +41,13 @@ describe('deriveRuns', () => {
     expect(r5.steps[0]!.result).toBeUndefined(); // still waiting on the tool
   });
 
+  it('matches a BLOCKED report sent before its incident existed', () => {
+    const report = ev({ type: 'radio', actor: { kind: 'robot', id: 'T-5' }, source_mode: 'simulated', payload: { from: 'T-5', to: 'Firefly', type: 'BLOCKED', text: 'Obstruction on the Door 7 approach.' } });
+    const opened = ev({ type: 'incident.opened', incident_id: 'R-5', caused_by: report.seq, payload: { id: 'R-5', kind: 'obstruction', truckId: 'T-5', door: 7, title: 'T-5 · Door 7 approach blocked', status: 'working', agentId: 'firefly-2' } });
+    const [run] = deriveRuns([report, opened]);
+    expect(run!.trigger?.text).toBe('Obstruction on the Door 7 approach.');
+  });
+
   it('takes the trigger from the BLOCKED report and the outcome from the resolve event', () => {
     const events = [
       ev({ type: 'radio', incident_id: 'R-2', actor: { kind: 'robot', id: 'T-2' }, source_mode: 'simulated', payload: { from: 'T-2', to: 'Firefly', type: 'BLOCKED', text: 'Door 3 closed.' } }),

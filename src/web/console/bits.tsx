@@ -1,12 +1,11 @@
 import type { IncidentStatus } from '../../contract.ts';
 
-/** Firefly's mark: a small light with a soft halo. */
+/** Firefly's mark: a rounded square holding one small light. One form; no glow. */
 export function FireflyMark({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true">
-      <circle cx="10" cy="10" r="9" fill="var(--color-glow)" opacity="0.14" />
-      <circle cx="10" cy="10" r="5.5" fill="var(--color-glow)" opacity="0.28" />
-      <circle cx="10" cy="10" r="3" fill="var(--color-glow)" />
+      <rect width="20" height="20" rx="5" fill="#ffffff" />
+      <circle cx="10" cy="10" r="3.2" fill="#08090a" />
     </svg>
   );
 }
@@ -35,8 +34,8 @@ export function StatusIcon({ status, size = 14 }: { status: IncidentStatus | 'no
     case 'waiting':
       return (
         <svg {...s}>
-          <circle cx="7" cy="7" r="5.6" fill="none" stroke="var(--color-glow)" strokeWidth="1.5" />
-          <path d="M7 3.6a3.4 3.4 0 0 1 0 6.8z" fill="var(--color-glow)" />
+          <circle cx="7" cy="7" r="5.6" fill="none" stroke="var(--color-fg-2)" strokeWidth="1.5" />
+          <path d="M7 3.6a3.4 3.4 0 0 1 0 6.8z" fill="var(--color-fg-2)" />
         </svg>
       );
     default:
