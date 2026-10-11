@@ -2,6 +2,9 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import type { FireflyEvent } from '../contract.ts';
+import { claude } from './agent/model.ts';
+import { AgentRunner } from './agent/runner.ts';
+import { Contention } from './contention.ts';
 import { Dispatch } from './dispatch.ts';
 import { openIncident } from './incidents.ts';
 import { DEMO_SCENARIO, injectProblem } from './problems.ts';
@@ -13,11 +16,19 @@ import { World } from './world.ts';
 const PORT = Number(process.env.API_PORT ?? 8787);
 
 const world = new World(seedWorld());
-const sim = new Simulator(world, (report) => openIncident(world, report));
+const contention = new Contention();
+// A truck's BLOCKED report opens an incident, and a free agent picks it up.
+const sim = new Simulator(world, (report) => {
+  openIncident(world, report);
+  runner.assign();
+});
 const dispatch = new Dispatch(world, sim);
+const runner = new AgentRunner({ world, sim, dispatch, contention, ask: claude() });
 const app = new Hono();
 
 function reset() {
+  runner.stop();
+  contention.disarm();
   sim.stop();
   world.reset(seedWorld());
 }
@@ -81,6 +92,7 @@ app.post('/api/reset', (c) => {
 /** Run demo scenario: a fresh yard, the preset problems, then the shift starts. Trucks find the problems themselves. */
 app.post('/api/scenario/demo', (c) => {
   reset();
+  contention.arm(); // the staged door race (see README)
   for (const problem of DEMO_SCENARIO) injectProblem(world, problem, 'demo scenario');
   dispatch.startShift();
   return c.json({ ok: true });
