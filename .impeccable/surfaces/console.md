@@ -1,13 +1,9 @@
-# Console surface
+# Supervisor console
 
-Mode: **Operate**.
+Mode: Operate. Route: `/console.html`.
 
-Apply the same warm surfaces, Inter hierarchy, shallow depth, and rounded rectangular panels as the landing. Prioritize the yard, event activity, and operational labels over a marketing composition. Keep the simulation disclosure visible and preserve truthful empty states.
+Integration preserves the current main-branch console: dark Geist typography, Phosphor icons, existing GIC glass/buttons, incident selection, agent activity, radio, rules, authorization, shift lever and record export. `src/web/index.css`, `src/web/ui/` and `src/web/console/` are authoritative for this surface, not the earlier warm placeholder console.
 
-Import the shared Truck component and yard lighting/ground. Use its existing uniform 0.61 display scale to fit the controller footprint; retain the silhouette and sensing forms while omitting fine trim for fleet rendering. Camera distance adapts to the canvas aspect ratio so the dock row and parking apron remain visible on portrait layouts.
+The detailed `yard/TruckRig.tsx` model and textured physical dock yard remain intact. Vehicle poses and rolling wheels follow controller-accepted routes. Simulation disclosure stays visible. The sidebar brand links back to the landing at `/`; `/worker.html` stays available for worker actions.
 
-Motion follows accepted controller routes or the last reported pose. The renderer never decides destinations. Closed doors, reservations, and held trucks keep their explicit state colors and labels; these operational colors are local semantic exceptions to the restrained neutral interface.
-
-At the existing responsive thresholds, narrow the activity column, then stack header, yard, and activity panels. Retain readable wrapping event rows, shallow panel shadows, and warm opaque reading surfaces. Do not transplant the oversized landing wordmark or illustrative story transitions into this operational surface.
-
-Visual review status: all three mobile framing corrections resolved; reviewer disposition is ship within the reviewed fix-list scope. This does not imply a pixel-perfect reference match, commercial asset import, or performance testing.
+The earlier prototype mobile review does not certify this newer console. Integration validation covers build/tests, landing-to-console navigation, and live snapshot rendering; it does not claim a new real-model must-ship run.

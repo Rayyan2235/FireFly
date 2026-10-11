@@ -65,7 +65,7 @@ export function Landing() {
       <nav aria-label="Main navigation" className="nav-tab">
         <button onClick={() => go(1)}>The yard</button>
         <button onClick={() => go(3)}>The truck</button>
-        <a href="/">Open the console <ArrowRight size={14} strokeWidth={1.5} aria-hidden="true" /></a>
+        <a href="/console.html">Open the console <ArrowRight size={14} strokeWidth={1.5} aria-hidden="true" /></a>
       </nav>
     </header>
     <a className="small-wordmark" href="#beginning">Firefly</a>
@@ -120,7 +120,7 @@ export function Landing() {
           {i === 6 && <>
             <h2>The next move<br />is yours.</h2>
             <p>Step into the simulated yard. Cause an exception.<br className="desktop-break" /> Watch the work unfold in the live console.</p>
-            <PrismaAction href="/">Open the console</PrismaAction>
+            <PrismaAction href="/console.html">Open the console</PrismaAction>
             <p className="closing">Firefly — the operating system<br />for agents, robots and people.</p>
           </>}
         </div>

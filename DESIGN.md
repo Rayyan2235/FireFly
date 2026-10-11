@@ -99,7 +99,7 @@ The shared system serves a persuasive landing page and an operational console. T
 
 Visual authority: [user-pinned reference](https://claude.ai/artifact/JqHZX2RGakx9sDDq9BZoU3), excluding its pixelated imagery and icons. The approved supplied Prisma hero composition remains a landing-specific exception. The north-star phrase summarizes that approved direction; it is documentation language, not an additional brand claim.
 
-The implementation authority is `src/web/design-system.css`, with surface-specific values in `src/web/landing/landing.css` and `src/web/console.css`. Frontmatter records those current primitives for design tools; change the source CSS first and refresh both documents together. `PRODUCT.md` contains earlier, provisional identity notes; the explicit user-approved reference governs this replacement.
+The landing implementation authority is `src/web/design-system.css` and `src/web/landing/landing.css`. The integrated full console preserves the newer dark Geist/Phosphor system from main in `src/web/index.css` and `src/web/ui/`. The console descriptions below document the earlier landing-branch prototype; they do not override that newer operational surface. Frontmatter records those current primitives for design tools; change the source CSS first and refresh both documents together. `PRODUCT.md` contains earlier, provisional identity notes; the explicit user-approved reference governs this replacement.
 
 **Key Characteristics:**
 - Warm light surfaces and restrained ink contrast.
@@ -200,3 +200,9 @@ Use brief state transitions, with 250ms as the implemented control cadence. Ther
 - **Don't** turn the pinned oversized Firefly wordmark into the default heading scale.
 - **Don't** add entrance animation or decorative parallax to the interface.
 - **Don't** claim the procedural vehicle reproduces an exact Aurora sensor configuration or demonstrates real autonomy, sensing accuracy, performance, or safety certification.
+
+## Product integration
+
+The default `/` entry point and `/landing.html` show the landing story. `/console.html` loads the full supervisor console, with its current agent panel, radio, site rules, approvals, export and shift controls. `/worker.html` remains the worker page. The console logo returns to `/`.
+
+The current console preserves main’s detailed `yard/TruckRig.tsx`, physical dock environment and controller-driven rolling wheels. The landing uses `three/Truck.tsx` with illustrative rear sensing. The earlier shared-model/0.61-scale console prototype described above is superseded by this integration; no controller or contract changes are introduced here.
