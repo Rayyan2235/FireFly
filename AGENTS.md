@@ -2,7 +2,7 @@
 
 Read this first. It is the one source of rules and contract for everyone working in this repo, human or agent. **Plans here are provisional and will change as we build. The non-negotiable rules don't.**
 
-Product context for design work: [`PRODUCT.md`](PRODUCT.md).
+Product context for design work: [`PRODUCT.md`](PRODUCT.md). Locked decisions: [`docs/adr/`](docs/adr/README.md) — one-way copies from the planning notes; don't edit them here.
 
 ## What we're building
 
@@ -35,7 +35,7 @@ c0mpiled-15, Sunday 11 Oct 2026, hacking **12:00–20:00 ET**. Track: YC Fall 20
 
 ## Team and workflow
 
-- **Muhammad** (`@usmannsiddiqui`): server, simulator, tools, agent loop. **Rayyan** (`@Rayyan2235`): screens. Split is provisional.
+- **Rayyan** (`@Rayyan2235`): server, simulator, tools, agent loop. **Muhammad** (`@usmannsiddiqui`): screens, 3D yard, design. Split is provisional.
 - **pnpm** only.
 - **One branch per task**, plain kebab-case names (`sse-event-stream`, `yard-scene`). Open a PR, merge with a merge commit. **Never commit to `main` directly.**
 - No `Co-Authored-By` or "Generated with" lines in commits or PRs.
@@ -152,7 +152,7 @@ Approval    { id, incidentId, kind resume, status pending|approved }
 
 ## Checkpoints (provisional)
 
-- **12:45** — Rayyan's 3D yard shows 8 trucks and 8 doors moving from a fixture.
+- **12:45** — The 3D yard shows 8 trucks and 8 doors moving from a fixture.
 - **~14:30** — R-2 runs end to end in the terminal with the real model.
 - **~16:00** — must-ship live in 3D, then the twice-in-a-row gate.
 - **18:30** — stop features; record, edit, README, submit before 20:00.
