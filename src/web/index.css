@@ -3,12 +3,13 @@
 /*
  * Console tokens. Dark base (Linear-like); glass, radii, shadows and buttons follow the
  * General Intelligence Company design system (claude.ai/artifact/JqHZX2RGakx9sDDq9BZoU3),
- * minus its pixel art. Colour is almost absent: red and green mark state, nothing else.
+ * minus its pixel art. No accent hue: the UI is one cool-grey family, and what needs attention is
+ * inverted (white ground, dark text). Colour comes only from the 3D yard itself.
  * Subject to change until the brand is chosen.
  */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --color-canvas: #08090a; /* page */
   --color-panel: #0f1011; /* main frame */
@@ -22,8 +23,6 @@
   --color-fg-3: #969ba3;
   --color-fg-4: #6b7078;
 
-  --color-danger: #eb5757;
-  --color-ok: #4cb782;
 
   --radius-lg: 8px; /* buttons, fields */
   --radius-xl: 12px; /* blocks inside a panel, the nav */
@@ -97,7 +96,11 @@ body {
   transition:
     background-color 250ms,
     border-color 250ms,
-    opacity 250ms;
+    opacity 250ms,
+    transform 120ms;
+}
+.btn:not(:disabled):active {
+  transform: translateY(1px);
 }
 .btn:focus-visible {
   outline: 2px solid #fff;
@@ -142,6 +145,23 @@ body {
   padding: 6px 0;
   border-radius: 4px;
   color: var(--color-fg-3);
+}
+
+/* Message-type chips. Neutral by default; inverted when a worker needs Firefly (BLOCKED, HOLD). */
+.chip {
+  display: inline-block;
+  padding: 0 5px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  font: 500 10.5px/16px var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--color-fg-2);
+  vertical-align: 1px;
+}
+.chip--attn {
+  border-color: #fff;
+  background: #fff;
+  color: #08090a;
 }
 
 /* The arrow always sits in a pill: the system's most recognisable small element. */

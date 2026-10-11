@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Bot, Forklift, Truck, User } from 'lucide-react';
+import { HardHat, Robot, Truck, User } from '@phosphor-icons/react';
 import type { WorldSnapshot } from '../../contract.ts';
 import { FireflyMark, StatusIcon } from './bits.tsx';
 
@@ -30,8 +30,8 @@ export function Sidebar({
 
   return (
     <aside className="flex min-h-0 flex-col px-3 pt-3 pb-3">
-      <div className="flex items-center gap-2.5 px-2 py-1.5">
-        <FireflyMark size={20} />
+      <div className="flex items-center gap-2.5 px-2 py-1.5 text-fg">
+        <FireflyMark width={34} />
         <div className="leading-tight">
           <p className="text-[14px] font-semibold tracking-[-0.01em] text-fg">Firefly</p>
           <p className="text-[12px] text-fg-3">North Yard</p>
@@ -82,17 +82,17 @@ export function Sidebar({
         <Section title="Workforce">
           <ul className="space-y-0.5 text-[13px]">
             {agents.map((w) => (
-              <Row key={w.id} icon={<Bot size={14} />} name={w.name} detail={w.status} busy={w.status === 'busy'} />
+              <Row key={w.id} icon={<Robot size={15} />} name={w.name} detail={w.status} busy={w.status === 'busy'} />
             ))}
             {people.map((w) => (
               <Row
                 key={w.id}
-                icon={w.equipment ? <Forklift size={14} /> : <User size={14} />}
+                icon={w.equipment ? <HardHat size={15} /> : <User size={15} />}
                 name={w.equipment ? `${w.name} · ${w.equipment}` : w.name}
                 detail={w.status.replace('_', ' ')}
               />
             ))}
-            <Row icon={<Truck size={14} />} name={`${trucks.length} trucks`} detail={held ? `${held} held` : 'none held'} alert={held > 0} />
+            <Row icon={<Truck size={15} />} name={`${trucks.length} trucks`} detail={held ? `${held} held` : 'none held'} alert={held > 0} />
           </ul>
         </Section>
       </div>
@@ -110,7 +110,7 @@ function Row({ icon, name, detail, busy, alert }: { icon: ReactNode; name: strin
     <li className="flex items-center gap-2.5 rounded-md px-2 py-[5px]">
       <span className={busy ? 'text-fg' : 'text-fg-3'}>{icon}</span>
       <span className="truncate text-fg-2">{name}</span>
-      <span className={`ml-auto shrink-0 text-[12px] ${alert ? 'text-danger' : busy ? 'text-fg' : 'text-fg-4'}`}>{detail}</span>
+      <span className={`ml-auto shrink-0 text-[12px] ${alert ? 'font-medium text-fg' : busy ? 'text-fg' : 'text-fg-4'}`}>{detail}</span>
     </li>
   );
 }

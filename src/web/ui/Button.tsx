@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from '@phosphor-icons/react';
 
 /** The arrow is never bare: it always sits in a pill. */
 export function ArrowPill() {
   return (
     <span className="arrow-pill" aria-hidden="true">
-      <ArrowRight size={9} strokeWidth={2.75} />
+      <ArrowRight size={9} weight="bold" />
     </span>
   );
 }

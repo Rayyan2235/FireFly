@@ -1,23 +1,28 @@
 import type { IncidentStatus } from '../../contract.ts';
 
-/** Firefly's mark: a rounded square holding one small light. One form; no glow. */
-export function FireflyMark({ size = 18 }: { size?: number }) {
+/** Firefly's mark (from the logo): a firefly's head, body and wings in one monoline stroke. Width is twice the height. */
+export function FireflyMark({ width = 30, strokeWidth = 14 }: { width?: number; strokeWidth?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true">
-      <rect width="20" height="20" rx="5" fill="#ffffff" />
-      <circle cx="10" cy="10" r="3.2" fill="#08090a" />
+    <svg width={width} height={width / 2} viewBox="0 0 320 160" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="160" cy="36" r="22" />
+      <rect x="138" y="68" width="44" height="80" rx="22" />
+      <path d="M138 60 H6 L42 97 C54 111 64 120 82 120 C100 120 116 108 138 92" />
+      <path d="M182 60 H314 L278 97 C266 111 256 120 238 120 C220 120 204 108 182 92" />
     </svg>
   );
 }
 
-/** Linear-style status glyphs, drawn rather than emoji. */
+/**
+ * Status glyphs. One grey family, no hues: shape says the state, and only "needs attention"
+ * is inverted to solid white, so it is the brightest thing in a list.
+ */
 export function StatusIcon({ status, size = 14 }: { status: IncidentStatus | 'none'; size?: number }) {
   const s = { width: size, height: size, viewBox: '0 0 14 14', 'aria-hidden': true } as const;
   switch (status) {
     case 'resolved':
       return (
         <svg {...s}>
-          <circle cx="7" cy="7" r="6" fill="var(--color-ok)" />
+          <circle cx="7" cy="7" r="6" fill="var(--color-fg-3)" />
           <path d="M4.3 7.2l1.8 1.8 3.6-3.8" fill="none" stroke="#08090a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
@@ -25,9 +30,9 @@ export function StatusIcon({ status, size = 14 }: { status: IncidentStatus | 'no
     case 'held':
       return (
         <svg {...s}>
-          <circle cx="7" cy="7" r="6" fill="var(--color-danger)" />
-          <rect x="6.25" y="3.6" width="1.5" height="4.4" rx="0.75" fill="#08090a" />
-          <circle cx="7" cy="10" r="0.9" fill="#08090a" />
+          <circle cx="7" cy="7" r="6.2" fill="#ffffff" />
+          <rect x="6.25" y="3.4" width="1.5" height="4.6" rx="0.75" fill="#08090a" />
+          <circle cx="7" cy="10.1" r="0.95" fill="#08090a" />
         </svg>
       );
     case 'working':

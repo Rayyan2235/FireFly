@@ -30,7 +30,7 @@ export function App() {
           <span className="text-fg-4">/</span>
           <span className="text-fg">Live yard</span>
           <span className="ml-3 flex items-center gap-2 text-fg-3">
-            <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-ok' : 'bg-fg-4'}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-fg' : 'border border-fg-4'}`} />
             {connected ? 'Live' : 'Connecting…'}
             <span className="font-mono text-[11.5px] text-fg-4 tabular-nums">seq {world?.seq ?? 0}</span>
           </span>
@@ -92,7 +92,7 @@ function ShiftLever({ world }: { world: WorldSnapshot | null }) {
     <div className="flex items-center gap-2.5" title={error ?? undefined}>
       <div className="text-right leading-tight">
         <p className="text-[13px] font-medium text-fg">{checked ? 'Demo shift running' : 'Start demo shift'}</p>
-        <p className={`text-[11.5px] ${error ? 'text-danger' : 'text-fg-4'}`}>{error ?? (checked ? 'P resets the yard' : 'Shift into D')}</p>
+        <p className={`text-[11.5px] ${error ? 'text-fg' : 'text-fg-4'}`}>{error ?? (checked ? 'P resets the yard' : 'Shift into D')}</p>
       </div>
       <LeverSwitch checked={checked} onChange={(v) => void shift(v)} disabled={busy || !world} label="Run demo scenario" gates={['P', 'D']} />
     </div>

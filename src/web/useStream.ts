@@ -17,6 +17,7 @@ type Action =
   | { kind: 'open' }
   | { kind: 'closed' }
   | { kind: 'snapshot'; world: WorldSnapshot }
+  | { kind: 'backfill'; events: FireflyEvent[] }
   | { kind: 'event'; event: FireflyEvent; at: number };
 
 const initial: StreamState = { connected: false, world: null, events: [], routes: {} };
@@ -82,6 +83,12 @@ function reducer(state: StreamState, action: Action): StreamState {
       return { ...state, connected: false };
     case 'snapshot':
       return { ...state, world: action.world, routes: {} };
+    case 'backfill': {
+      // Earlier events of this shift, so a page opened mid-shift still shows the trace. The snapshot already holds their effect on the world.
+      const known = new Set(state.events.map((e) => e.seq));
+      const earlier = action.events.filter((e) => !known.has(e.seq));
+      return { ...state, events: [...earlier, ...state.events].sort((a, b) => a.seq - b.seq).slice(-500) };
+    }
     case 'event':
       return apply(state, action.event, action.at);
   }
@@ -95,7 +102,16 @@ export function useStream(): StreamState {
     const es = new EventSource(replay ? `/api/stream?replay=${encodeURIComponent(replay)}` : '/api/stream');
     es.onopen = () => dispatch({ kind: 'open' });
     es.onerror = () => dispatch({ kind: 'closed' });
-    es.addEventListener('snapshot', (m) => dispatch({ kind: 'snapshot', world: JSON.parse((m as MessageEvent).data) }));
+    es.addEventListener('snapshot', (m) => {
+      const world = JSON.parse((m as MessageEvent).data) as WorldSnapshot;
+      dispatch({ kind: 'snapshot', world });
+      // The live server keeps the shift's work record; a fixture replay has its own fresh world, so skip it there.
+      if (!replay && world.seq > 0)
+        fetch('/api/record')
+          .then((r) => (r.ok ? (r.json() as Promise<{ events: FireflyEvent[] }>) : null))
+          .then((rec) => rec && dispatch({ kind: 'backfill', events: rec.events.filter((e) => e.seq <= world.seq) }))
+          .catch(() => {});
+    });
     es.addEventListener('event', (m) =>
       dispatch({ kind: 'event', event: JSON.parse((m as MessageEvent).data), at: performance.now() }),
     );
