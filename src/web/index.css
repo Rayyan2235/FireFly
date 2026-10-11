@@ -375,3 +375,16 @@ body {
 .r5-worker-launcher>.btn { width:100%; min-height:44px; }
 .r5-worker-launcher .arrow-pill { margin-left:auto; }
 .r5-worker-launcher a { text-decoration:underline; text-underline-offset:3px; color:var(--color-fg); }
+
+/* The live phone appears on an SSE assignment, without browser popup permissions. */
+.r5-phone-panel { position:fixed; z-index:70; top:88px; bottom:16px; left:272px; width:392px; max-width:calc(100vw - 32px); display:flex; flex-direction:column; overflow:hidden; background:#08090a; border:1px solid var(--color-line-strong); border-radius:16px; box-shadow:0 16px 48px #0008; }
+.r5-phone-panel>header { display:flex; align-items:center; justify-content:space-between; padding:4px 12px; border-bottom:1px solid var(--color-line); color:var(--color-fg); }
+.r5-phone-panel>header>div { display:flex; align-items:center; gap:8px; font-size:13px; }
+.r5-phone-panel>header .btn { min-height:48px; }
+.r5-phone-panel iframe { display:block; width:100%; min-height:0; flex:1; border:0; background:#08090a; }
+.r5-phone-panel>footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; font-size:11px; color:var(--color-fg-3); border-top:1px solid var(--color-line); }
+.r5-phone-panel a { color:var(--color-fg-2); text-decoration:underline; text-underline-offset:3px; }
+@media (max-width:767px) { .r5-phone-panel { left:16px; top:16px; } }
+
+.r5-phone-screen { min-height:0; flex:1; overflow:auto; }
+.r5-phone-screen .worker-page { min-height:0; padding:20px; }

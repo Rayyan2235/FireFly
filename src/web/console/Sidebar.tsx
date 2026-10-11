@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { HardHat, Robot, Truck, User } from '@phosphor-icons/react';
+import type { StreamState } from '../useStream.ts';
 import type { WorldSnapshot } from '../../contract.ts';
 import { displayWorkerNames } from '../workerNames.ts';
 import { WorkerLauncher } from './WorkerLauncher.tsx';
@@ -17,10 +18,12 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export function Sidebar({
+  stream,
   world,
   selected,
   onSelect,
 }: {
+  stream: StreamState;
   world: WorldSnapshot | null;
   selected: string | null;
   onSelect: (incidentId: string) => void;
@@ -42,7 +45,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <WorkerLauncher />
+      <WorkerLauncher stream={stream} />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <Section title="Incidents">
           {incidents.length === 0 ? (

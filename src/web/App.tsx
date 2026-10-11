@@ -13,7 +13,8 @@ import { LeverSwitch } from './ui/LeverSwitch.tsx';
 
 // The supervisor's console. Muhammad owns the screens from here.
 export function App() {
-  const { connected, world, events, routes } = useStream();
+  const stream = useStream();
+  const { connected, world, events, routes } = stream;
   // A reset starts a new shift: only events after the last world.reset belong on screen.
   const shift = useMemo(() => events.slice(events.findLastIndex((e) => e.type === 'world.reset') + 1), [events]);
   const runs = useMemo(() => deriveRuns(shift), [shift]);
@@ -24,7 +25,7 @@ export function App() {
 
   return (
     <div className="grid h-screen grid-cols-[256px_minmax(0,1fr)] bg-canvas text-fg">
-      <Sidebar world={world} selected={selected} onSelect={setPicked} />
+      <Sidebar stream={stream} world={world} selected={selected} onSelect={setPicked} />
 
       <main className="my-2 mr-2 flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-panel">
         <header className="flex h-16 shrink-0 items-center gap-3 border-b border-line px-4 text-[13px]">
