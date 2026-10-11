@@ -1,3 +1,4 @@
+import type { FireflyEvent } from '../contract.ts';
 import type { World } from './world.ts';
 
 /** Something that goes wrong in the yard. Trucks find out for themselves when they get there. */
@@ -13,13 +14,13 @@ export const DEMO_SCENARIO: Problem[] = [
 ];
 
 /** The problem injector. It only changes the yard; it never opens an incident or tells a truck anything. */
-export function injectProblem(world: World, problem: Problem, cause: string): void {
+export function injectProblem(world: World, problem: Problem, cause: string): FireflyEvent {
   const door = world.state.doors.find((d) => d.id === problem.door);
   if (!door) throw new Error(`Unknown door: ${problem.door}`);
 
   if (problem.kind === 'close_door') door.closed = true;
   else door.obstruction = true;
-  world.emit({
+  return world.emit({
     type: 'door.changed',
     actor: { kind: 'system', id: 'scenario' },
     source_mode: 'simulated',
