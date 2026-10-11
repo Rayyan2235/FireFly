@@ -22,6 +22,8 @@ export function Button({
   onClick,
   disabled,
   className = '',
+  expanded,
+  controls,
   children,
 }: {
   variant?: 'solid' | 'glass' | 'link' | 'quiet';
@@ -31,6 +33,8 @@ export function Button({
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
+  expanded?: boolean;
+  controls?: string;
   children: ReactNode;
 }) {
   const cls = `btn btn--${variant} ${className}`;
@@ -42,7 +46,7 @@ export function Button({
       </a>
     );
   return (
-    <button type="button" className={cls} onClick={onClick} disabled={disabled}>
+    <button aria-expanded={expanded} aria-controls={controls} type="button" className={cls} onClick={onClick} disabled={disabled}>
       {children}
       {arrow && <ArrowPill />}
     </button>

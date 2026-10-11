@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T20:57:08.630654+00:00",
+  "title": "Design System: Firefly",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Background",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00407 121.56)",
+          "oklch(26.43% 0.00407 121.56)",
+          "oklch(37.86% 0.00407 121.56)",
+          "oklch(49.29% 0.00407 121.56)",
+          "oklch(60.71% 0.00407 121.56)",
+          "oklch(72.14% 0.00407 121.56)",
+          "oklch(83.57% 0.00407 121.56)",
+          "oklch(95.00% 0.00407 121.56)"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Surface Raised",
+        "tonalRamp": [
+          "oklch(15.00% 0.00408 121.56)",
+          "oklch(26.43% 0.00408 121.56)",
+          "oklch(37.86% 0.00408 121.56)",
+          "oklch(49.29% 0.00408 121.56)",
+          "oklch(60.71% 0.00408 121.56)",
+          "oklch(72.14% 0.00408 121.56)",
+          "oklch(83.57% 0.00408 121.56)",
+          "oklch(95.00% 0.00408 121.56)"
+        ]
+      },
+      "surface-sunken": {
+        "role": "neutral",
+        "displayName": "Surface Sunken",
+        "tonalRamp": [
+          "oklch(15.00% 0.00449 134.85)",
+          "oklch(26.43% 0.00449 134.85)",
+          "oklch(37.86% 0.00449 134.85)",
+          "oklch(49.29% 0.00449 134.85)",
+          "oklch(60.71% 0.00449 134.85)",
+          "oklch(72.14% 0.00449 134.85)",
+          "oklch(83.57% 0.00449 134.85)",
+          "oklch(95.00% 0.00449 134.85)"
+        ]
+      },
+      "surface-tint": {
+        "role": "neutral",
+        "displayName": "Surface Tint",
+        "tonalRamp": [
+          "oklch(15.00% 0.00618 137.77)",
+          "oklch(26.43% 0.00618 137.77)",
+          "oklch(37.86% 0.00618 137.77)",
+          "oklch(49.29% 0.00618 137.77)",
+          "oklch(60.71% 0.00618 137.77)",
+          "oklch(72.14% 0.00618 137.77)",
+          "oklch(83.57% 0.00618 137.77)",
+          "oklch(95.00% 0.00618 137.77)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Foreground",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "tonalRamp": [
+          "oklch(15.00% 0.00409 17.34)",
+          "oklch(26.43% 0.00409 17.34)",
+          "oklch(37.86% 0.00409 17.34)",
+          "oklch(49.29% 0.00409 17.34)",
+          "oklch(60.71% 0.00409 17.34)",
+          "oklch(72.14% 0.00409 17.34)",
+          "oklch(83.57% 0.00409 17.34)",
+          "oklch(95.00% 0.00409 17.34)"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15.00% 0.00687 145.52)",
+          "oklch(26.43% 0.00687 145.52)",
+          "oklch(37.86% 0.00687 145.52)",
+          "oklch(49.29% 0.00687 145.52)",
+          "oklch(60.71% 0.00687 145.52)",
+          "oklch(72.14% 0.00687 145.52)",
+          "oklch(83.57% 0.00687 145.52)",
+          "oklch(95.00% 0.00687 145.52)"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Line Strong",
+        "tonalRamp": [
+          "oklch(15.00% 0.00696 145.51)",
+          "oklch(26.43% 0.00696 145.51)",
+          "oklch(37.86% 0.00696 145.51)",
+          "oklch(49.29% 0.00696 145.51)",
+          "oklch(60.71% 0.00696 145.51)",
+          "oklch(72.14% 0.00696 145.51)",
+          "oklch(83.57% 0.00696 145.51)",
+          "oklch(95.00% 0.00696 145.51)"
+        ]
+      },
+      "control-solid": {
+        "role": "primary",
+        "displayName": "Control Solid",
+        "tonalRamp": [
+          "oklch(15.00% 0.01894 284.91)",
+          "oklch(26.43% 0.01894 284.91)",
+          "oklch(37.86% 0.01894 284.91)",
+          "oklch(49.29% 0.01894 284.91)",
+          "oklch(60.71% 0.01894 284.91)",
+          "oklch(72.14% 0.01894 284.91)",
+          "oklch(83.57% 0.01894 284.91)",
+          "oklch(95.00% 0.01894 284.91)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Accent",
+        "tonalRamp": [
+          "oklch(15.00% 0.13386 240.81)",
+          "oklch(26.43% 0.13386 240.81)",
+          "oklch(37.86% 0.13386 240.81)",
+          "oklch(49.29% 0.13386 240.81)",
+          "oklch(60.71% 0.13386 240.81)",
+          "oklch(72.14% 0.13386 240.81)",
+          "oklch(83.57% 0.13386 240.81)",
+          "oklch(95.00% 0.13386 240.81)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Implemented headline interface role."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Implemented title interface role."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Implemented body interface role."
+      },
+      "supporting": {
+        "displayName": "Supporting",
+        "purpose": "Implemented supporting interface role."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Implemented label interface role."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "Pinned landing hero composition only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "float",
+        "value": "0 2px 6px #00000026",
+        "purpose": "Floating navigation and inspection labels."
+      },
+      {
+        "name": "card",
+        "value": "0 1px 8px #0000000d",
+        "purpose": "Console panels."
+      },
+      {
+        "name": "pill",
+        "value": "0 1px 1px #0000000a",
+        "purpose": "Primary action."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-state",
+        "value": "250ms",
+        "purpose": "Navigation color, primary action background, and arrow translation."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "Remove CSS transitions; freeze the scan and snap the landing camera to chapter states."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "landing-mobile-max",
+        "value": "759px"
+      },
+      {
+        "name": "landing-compact-max",
+        "value": "1100px"
+      },
+      {
+        "name": "landing-wide-min",
+        "value": "1600px"
+      },
+      {
+        "name": "console-compact-max",
+        "value": "900px"
+      },
+      {
+        "name": "console-stack-max",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Dark rectangular action with a pill arrow inset.",
+      "html": "<button class=\"ds-primary\">Open the console<span class=\"ds-disc\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\"/></svg></span></button>",
+      "css": ".ds-primary { display:inline-flex; align-items:center; justify-content:space-between; gap:28px; padding:7px 7px 7px 18px; border-radius:var(--radius-md,12px); background:linear-gradient(180deg,#ffffff30,#ffffff1a),var(--control-solid,#1f1f29); border:1px solid #282834; color:var(--surface,#fefffc); font:500 13px var(--font-ui,Inter,sans-serif); min-height:48px; box-shadow:var(--shadow-pill,0 1px 1px #0000000a); cursor:pointer; transition:background-color 250ms; } .ds-disc { width:40px; height:28px; border-radius:50.5px; background:linear-gradient(180deg,#ffffff29,#ffffff14); border:1px solid #ffffff33; display:grid; place-items:center; transition:transform 250ms; } .ds-primary:hover { background-color:#34343f; } .ds-primary:hover .ds-disc { transform:translateX(2px); } .ds-primary:focus-visible { outline:2px solid var(--ink,#2c2c2c); outline-offset:3px; } @media(prefers-reduced-motion:reduce) { .ds-primary,.ds-disc { transition:none; } }"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Quiet inline action with a stroke arrow.",
+      "html": "<button class=\"ds-text\">Inspect the truck<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-text { display:inline-flex; align-items:center; gap:14px; padding:0; border:0; background:none; color:var(--foreground,#171717); font:400 13px var(--font-ui,Inter,sans-serif); min-height:44px; cursor:pointer; } .ds-text:hover { color:var(--accent,#0081c0); } .ds-text:focus-visible { outline:2px solid var(--ink,#2c2c2c); outline-offset:3px; }"
+    },
+    {
+      "name": "Glass navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Floating warm glass with an inset destination link.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Preview navigation\"><button>How it works</button><a href=\"#console\">Console<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\"/></svg></a></nav>",
+      "css": ".ds-nav { display:inline-flex; align-items:center; gap:28px; padding:4px 8px 4px 24px; border-radius:var(--radius-md,12px); background:linear-gradient(180deg,#f9faf7b8,#f9faf794); border:1px solid #ffffff80; backdrop-filter:blur(9px); box-shadow:var(--shadow-float,0 2px 6px #00000026); white-space:nowrap; } .ds-nav button,.ds-nav a { display:inline-flex; align-items:center; gap:12px; min-height:40px; padding:0; border:0; background:none; font:500 13px var(--font-ui,Inter,sans-serif); color:var(--ink-secondary,#444141); text-decoration:none; cursor:pointer; transition:color 250ms; } .ds-nav a { background:#ffffff6b; padding:0 12px; border-radius:8px; } .ds-nav button:hover,.ds-nav a:hover { color:var(--accent,#0081c0); } .ds-nav button:focus-visible,.ds-nav a:focus-visible { outline:2px solid var(--ink,#2c2c2c); outline-offset:3px; } @media(prefers-reduced-motion:reduce) { .ds-nav button,.ds-nav a { transition:none; } }"
+    },
+    {
+      "name": "Inspection hotspot",
+      "kind": "button",
+      "refersTo": "hotspot",
+      "description": "A part label over the shared truck illustration.",
+      "html": "<button class=\"ds-hotspot\" aria-pressed=\"true\"><span class=\"ds-dot\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><circle cx=\"12\" cy=\"12\" r=\"8\"/></svg></span>Rear sensor</button>",
+      "css": ".ds-hotspot { display:inline-flex; align-items:center; gap:8px; font:400 11px var(--font-ui,Inter,sans-serif); color:var(--foreground,#171717); min-height:44px; padding:0 10px 0 6px; border:0; background:#fefffcdb; border-radius:8px; box-shadow:var(--shadow-float,0 2px 6px #00000026); backdrop-filter:blur(15px); cursor:pointer; } .ds-dot { width:26px; height:26px; display:grid; place-items:center; border:1px solid #adbeaf; border-radius:50%; } .ds-hotspot:hover,.ds-hotspot[aria-pressed=\"true\"] { color:#006393; } .ds-hotspot[aria-pressed=\"true\"] .ds-dot { background:var(--accent,#0081c0); border-color:var(--accent,#0081c0); color:#fff; } .ds-hotspot:focus-visible { outline:2px solid var(--ink,#2c2c2c); outline-offset:3px; }"
+    },
+    {
+      "name": "Console panel",
+      "kind": "card",
+      "refersTo": "console-panel",
+      "description": "Readable activity container with a quiet empty state.",
+      "html": "<section class=\"ds-panel\"><h2>Activity</h2><p>Waiting for yard events.</p></section>",
+      "css": ".ds-panel { border-radius:var(--radius-lg,16px); overflow:hidden; background:var(--surface,#fefffc); color:var(--foreground,#171717); box-shadow:var(--shadow-card,0 1px 8px #0000000d); font-family:var(--font-ui,Inter,sans-serif); min-width:260px; } .ds-panel h2 { margin:0; padding:20px 24px 16px; font-size:14px; font-weight:500; color:var(--ink,#2c2c2c); letter-spacing:-.15px; } .ds-panel p { margin:0; padding:10px 24px 24px; color:var(--ink-muted,#646464); font-size:13px; font-weight:400; line-height:1.65; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Quiet intelligence in a working yard",
+    "overview": "Firefly uses the user-approved General Intelligence Company reference as its visual authority: warm white and sage-tinted surfaces, restrained ink typography, glass navigation, and clear rectangular controls. The result should feel calm, precise, and physically grounded.\n\nThe shared system serves a persuasive landing page and an operational console. Their density and composition differ; typography, materials, controls, and the original procedural truck remain recognizably related. Pixelated imagery and pixel icons are excluded by the user.",
+    "keyCharacteristics": [
+      "Warm light surfaces and restrained ink contrast.",
+      "Inter at regular and medium weights for interface typography.",
+      "Soft glass navigation and rectangular actions with a pill-shaped arrow inset.",
+      "An original code-rendered industrial yard with an illustrative sensing accent."
+    ],
+    "rules": [
+      {
+        "name": "The Source Palette Rule",
+        "body": "Reuse the CSS palette for interface surfaces. Truck, yard, and operational status materials remain scene-local values; do not promote every material swatch to a global UI token.",
+        "section": "colors"
+      },
+      {
+        "name": "The Quiet Hierarchy Rule",
+        "body": "Use regular and medium Inter as the default; establish emphasis with scale and placement before adding heavier weights.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Depth Rule",
+        "body": "Keep shadows shallow and functional. Do not substitute luminous glow or dramatic card lifts for the established tonal hierarchy.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do reuse the shared CSS tokens and the same Truck component across both surfaces.",
+      "Do preserve visible keyboard focus, readable labels, and reduced-motion behavior.",
+      "Do identify simulation and illustration clearly; only operational events may imply operational outcomes.",
+      "Do reserve blue sensing marks for the approved illustrative scan, route, and inspection treatments."
+    ],
+    "donts": [
+      "Don't introduce pixelated artwork or pixel icons.",
+      "Don't turn the pinned oversized Firefly wordmark into the default heading scale.",
+      "Don't add entrance animation or decorative parallax to the interface.",
+      "Don't claim the procedural vehicle reproduces an exact Aurora sensor configuration or demonstrates real autonomy, sensing accuracy, performance, or safety certification."
+    ]
+  }
+}
