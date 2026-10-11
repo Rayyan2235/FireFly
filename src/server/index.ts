@@ -10,6 +10,7 @@ import { Contention } from './contention.ts';
 import { Dispatch } from './dispatch.ts';
 import { openClearance, openIncident } from './incidents.ts';
 import { DEMO_SCENARIO, injectProblem, withdrawOffersFor } from './problems.ts';
+import { currentRun, reliability } from './reliability.ts';
 import { loadFixture, playFixture } from './replay.ts';
 import { seedWorld } from './seed.ts';
 import { Simulator } from './simulator.ts';
@@ -145,6 +146,9 @@ app.get('/api/record', (c) => {
   c.header('Content-Disposition', 'attachment; filename="firefly-work-record.json"');
   return c.json({ exported_at: new Date().toISOString(), mode: 'Twin mode · simulated trucks', seq: world.state.seq, events: world.since(0) });
 });
+
+/** The reliability panel: outcomes of the current run, counted from its event log. Ask again after new events. */
+app.get('/api/reliability', (c) => c.json(reliability(currentRun(world.since(0)), [...sim.commands.values()])));
 
 /* ---------- the supervisor (console) ---------- */
 
