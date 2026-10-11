@@ -8,7 +8,7 @@ import type { World } from '../world.ts';
 import type { AskModel, MessageParam } from './model.ts';
 import { SYSTEM_PROMPT, incidentBrief } from './prompt.ts';
 
-const TOOL_BUDGET = 15; // tool calls per incident before the system steps in
+export const TOOL_BUDGET = 20; // tool calls per incident before the system steps in
 
 interface Run {
   incidentId: string;
@@ -17,6 +17,7 @@ interface Run {
   toolCalls: number;
   busy: boolean; // a model turn is in flight
   news: string[]; // observations that arrived while it was busy
+  note?: { from: string; text: string; seq: number }; // the last supervisor note this run was told about
 }
 
 export interface RunnerParts {
@@ -67,6 +68,19 @@ export class AgentRunner {
     if (!run) return;
     run.news.push(observation);
     if (!run.busy) void this.turn(run);
+  }
+
+  /**
+   * Passes a supervisor note to the agent on one incident, or to every agent at work.
+   * The note is what gives a run the authority to save a correction. Returns how many were told.
+   */
+  supervisorNote(note: { from: string; text: string; seq: number }, incidentId?: string): number {
+    const told = [...this.runs.values()].filter((run) => !incidentId || run.incidentId === incidentId);
+    for (const run of told) {
+      run.note = note;
+      this.wake(run.incidentId, `Supervisor note from ${note.from}: "${note.text}"`);
+    }
+    return told.length;
   }
 
   /** Forgets every run (used by reset). Turns already in flight notice and stop. */
@@ -139,6 +153,8 @@ export class AgentRunner {
 
         if (status() === 'resolved') return this.finish(run);
         if (results.length) {
+          // News that arrived mid-turn rides along with the tool results, so the model sees it at once.
+          if (run.news.length) results.push({ type: 'text', text: run.news.splice(0).join('\n') });
           run.messages.push({ role: 'user', content: results });
           if (run.toolCalls >= TOOL_BUDGET && reply.stop_reason === 'tool_use') return this.systemEscalate(run, `the budget of ${TOOL_BUDGET} tool calls is used up.`);
           continue;
@@ -218,7 +234,7 @@ export class AgentRunner {
 
   private context(run: Run): ToolContext {
     const { world, sim, dispatch, contention } = this.parts;
-    return { world, sim, dispatch, contention, incidentId: run.incidentId, agentId: run.agentId };
+    return { world, sim, dispatch, contention, incidentId: run.incidentId, agentId: run.agentId, note: run.note, wake: (id, observation) => this.wake(id, observation) };
   }
 
   private name(agentId: string): string {

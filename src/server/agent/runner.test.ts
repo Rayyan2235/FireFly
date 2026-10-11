@@ -9,7 +9,7 @@ import { Simulator } from '../simulator.ts';
 import type { ToolInput } from '../tools/index.ts';
 import { World } from '../world.ts';
 import type { AskModel, Message } from './model.ts';
-import { AgentRunner } from './runner.ts';
+import { AgentRunner, TOOL_BUDGET } from './runner.ts';
 
 /*
  * These tests replace the model with a fixed list of tool calls so the loop itself
@@ -135,7 +135,7 @@ describe('AgentRunner', () => {
     await vi.runAllTimersAsync();
 
     expect(incident('R-2').status).toBe('needs_you');
-    expect(events.filter((e) => e.type === 'tool.called' && e.incident_id === 'R-2')).toHaveLength(15);
+    expect(events.filter((e) => e.type === 'tool.called' && e.incident_id === 'R-2')).toHaveLength(TOOL_BUDGET);
     expect(events.some((e) => e.summary.startsWith('R-2 escalated by the system'))).toBe(true);
     expect(world.state.trucks.find((t) => t.id === 'T-2')?.controller).toBe('held');
   });
