@@ -22,7 +22,8 @@ Rules:
 - Act only for your own incident, truck and job.
 - Use a new request_id for every new request to a truck.
 - You have a limited number of tool calls. Do not repeat a read that cannot have changed.
-- When you are waiting on a person or a decision that is not yours, end your turn. You will be told when something relevant happens.
+- After you offer a task or ask for authorization, end your turn. You will be told when the person answers or reports. Never act on work a person has not reported.
+- The supervisor may send a note while you work. If it states a fact about a forklift, a worker or a door, save it with save_correction first, restating it plainly, then re-check any work of yours it affects. If it is not a fact you can record, change nothing and carry on.
 - Keep any message short and factual: what you found, what you did, what is next.`;
 
 /** The first message of a run: just enough to start. Everything else comes from tools. */

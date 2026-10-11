@@ -4,7 +4,7 @@ import { fail, int, ok, schema, scope, text } from './types.ts';
 import type { Tool } from './types.ts';
 
 export interface DoorConflict {
-  conflict: 'unknown_door' | 'wrong_kind' | 'switch_not_allowed' | 'door_closed' | 'obstruction' | 'occupied' | 'door_taken';
+  conflict: 'unknown_door' | 'wrong_kind' | 'switch_not_allowed' | 'door_closed' | 'obstruction' | 'occupied' | 'door_taken' | 'supervisor_rule';
   reason: string;
   by?: string; // the truck in the way
 }
@@ -14,6 +14,8 @@ export function doorConflict(world: World, job: Job, door: Door | undefined): Do
   if (!door) return { conflict: 'unknown_door', reason: 'No such door.' };
   if (door.kind !== job.kind) return { conflict: 'wrong_kind', reason: `Door ${door.id} is a ${door.kind} door; ${job.id} needs ${job.kind}.` };
   if (door.id !== job.assignedDoor && !job.canSwitchDoor) return { conflict: 'switch_not_allowed', reason: `${job.id} must use Door ${job.assignedDoor}; it cannot switch doors.` };
+  const rule = world.state.corrections.find((c) => c.active && c.subject === `D${door.id}`);
+  if (rule && door.id !== job.assignedDoor) return { conflict: 'supervisor_rule', reason: `Door ${door.id} is held back by ${rule.source}'s rule: ${rule.fact}.` };
   if (door.closed) return { conflict: 'door_closed', reason: `Door ${door.id} is closed.` };
   if (door.obstruction) return { conflict: 'obstruction', reason: `The Door ${door.id} approach is obstructed.` };
   if (door.occupant && door.occupant !== job.truckId) return { conflict: 'occupied', reason: `Door ${door.id} is occupied by ${door.occupant}.`, by: door.occupant };

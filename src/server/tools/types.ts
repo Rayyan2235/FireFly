@@ -12,6 +12,10 @@ export interface ToolContext {
   incidentId: string;
   agentId: string;
   contention?: Contention;
+  /** The supervisor note this run was last told about. Only a note gives authority to save a correction. */
+  note?: { from: string; text: string; seq: number };
+  /** Tells another incident's agent that something it depends on changed. */
+  wake?: (incidentId: string, observation: string) => void;
 }
 
 /** What the model gets back. `ok: false` always says what was wrong, so the model can adapt. */
