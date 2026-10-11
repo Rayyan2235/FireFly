@@ -1,6 +1,7 @@
 import type { Incident, Job, Truck } from '../../contract.ts';
 import type { Contention } from '../contention.ts';
 import type { Dispatch } from '../dispatch.ts';
+import type { Lane, LaneStats } from '../lanes.ts';
 import type { Simulator } from '../simulator.ts';
 import type { World } from '../world.ts';
 
@@ -16,6 +17,8 @@ export interface ToolContext {
   note?: { from: string; text: string; seq: number };
   /** Outcomes recorded in earlier shifts, when a flight recorder is connected. */
   memory?: () => Promise<Record<string, unknown>>;
+  /** Trip statistics for a lane, computed in MongoDB from the public dataset, when it is connected. */
+  lanes?: (lane: Lane) => Promise<LaneStats | null>;
   /** Tells another incident's agent that something it depends on changed. */
   wake?: (incidentId: string, observation: string) => void;
 }

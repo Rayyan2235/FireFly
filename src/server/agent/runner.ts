@@ -1,6 +1,7 @@
 import type { Incident, IncidentStatus, Worker } from '../../contract.ts';
 import type { Contention } from '../contention.ts';
 import type { Dispatch } from '../dispatch.ts';
+import type { Lane, LaneStats } from '../lanes.ts';
 import type { Simulator } from '../simulator.ts';
 import { TOOLS, runTool } from '../tools/index.ts';
 import type { ToolContext, ToolInput } from '../tools/index.ts';
@@ -27,6 +28,8 @@ export interface RunnerParts {
   contention?: Contention;
   /** Outcomes recorded in earlier shifts, when a flight recorder is connected. */
   memory?: () => Promise<Record<string, unknown>>;
+  /** Trip statistics for a lane from the public dataset in MongoDB, when it is connected. */
+  lanes?: (lane: Lane) => Promise<LaneStats | null>;
   ask: AskModel;
 }
 
@@ -235,8 +238,8 @@ export class AgentRunner {
   }
 
   private context(run: Run): ToolContext {
-    const { world, sim, dispatch, contention, memory } = this.parts;
-    return { world, sim, dispatch, contention, memory, incidentId: run.incidentId, agentId: run.agentId, note: run.note, wake: (id, observation) => this.wake(id, observation) };
+    const { world, sim, dispatch, contention, memory, lanes } = this.parts;
+    return { world, sim, dispatch, contention, memory, lanes, incidentId: run.incidentId, agentId: run.agentId, note: run.note, wake: (id, observation) => this.wake(id, observation) };
   }
 
   private name(agentId: string): string {

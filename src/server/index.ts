@@ -42,7 +42,7 @@ const sim = new Simulator(world, (report) => {
   else runner.wake(incident.id, ` reported BLOCKED again at Door ${report.door} (${report.reason.replace('_', ' ')}).`);
 });
 const dispatch = new Dispatch(world, sim);
-const runner = new AgentRunner({ world, sim, dispatch, contention, memory: recorder ? () => recorder.earlierShifts() : undefined, ask: claude() });
+const runner = new AgentRunner({ world, sim, dispatch, contention, memory: recorder ? () => recorder.earlierShifts() : undefined, lanes: recorder ? (lane) => recorder.laneStats(lane) : undefined, ask: claude() });
 const actions = new Actions(world, runner);
 const app = new Hono();
 

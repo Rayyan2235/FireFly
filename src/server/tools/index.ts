@@ -2,6 +2,7 @@ import { getCommandStatus, requestDestination } from './commands.ts';
 import { getJob, listCompatibleDoors, reserveDoor } from './doors.ts';
 import { getSiteHistory } from './history.ts';
 import { escalate, getSiteProcedure, inspectIncident, verifyOutcome } from './incident.ts';
+import { getLaneHistory } from './lanes.ts';
 import { listEligibleWorkers, offerTask, requestAuthorization, requestResume, saveCorrection, withdrawOffer } from './people.ts';
 import { BadInput, fail } from './types.ts';
 import type { Tool, ToolContext, ToolInput, ToolResult } from './types.ts';
@@ -14,6 +15,7 @@ export const TOOLS: Tool[] = [
   getJob,
   getSiteProcedure,
   getSiteHistory,
+  getLaneHistory,
   listCompatibleDoors,
   reserveDoor,
   requestDestination,
