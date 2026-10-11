@@ -121,7 +121,7 @@ export function Landing() {
             <h2>The next move<br />is yours.</h2>
             <p>Step into the simulated yard. Cause an exception.<br className="desktop-break" /> Watch the work unfold in the live console.</p>
             <PrismaAction href="/console.html">Open the console</PrismaAction>
-            <p className="closing">Firefly — the operating system<br />for agents, robots and people.</p>
+            <p className="closing">Firefly. The operating system<br />for agents, robots and people.</p>
           </>}
         </div>
       </section>)}

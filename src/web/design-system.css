@@ -10,7 +10,7 @@
   --radius-sm: 6px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px;
   --shadow-float: 0 2px 6px #00000026; --shadow-card: 0 1px 8px #0000000d;
   --shadow-pill: 0 1px 1px #0000000a;
-  --font-ui: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Switzer', ui-sans-serif, system-ui, sans-serif;
   font-family: var(--font-ui); color: var(--foreground); background: var(--background);
   color-scheme: dark; scrollbar-color: #3a3e44 var(--surface-sunken);
   caret-color: var(--foreground); font-synthesis: none;
