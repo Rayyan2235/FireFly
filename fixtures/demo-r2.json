@@ -1,0 +1,675 @@
+{
+  "name": "demo-r2",
+  "note": "DEV ONLY. Hand-written R-2 story for building screens before the server logic exists. Never show it in the video or call it model output.",
+  "events": [
+    {
+      "at": 0,
+      "type": "door.changed",
+      "actor": {
+        "kind": "system",
+        "id": "scenario"
+      },
+      "source_mode": "simulated",
+      "summary": "Door 3 closed (demo scenario).",
+      "payload": {
+        "id": 3,
+        "kind": "receiving",
+        "closed": true,
+        "obstruction": false,
+        "occupant": null,
+        "reservedBy": "J-2"
+      }
+    },
+    {
+      "at": 300,
+      "type": "truck.route",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 heading to Door 3.",
+      "payload": {
+        "truckId": "T-2",
+        "from": {
+          "x": -9,
+          "z": 9.5,
+          "heading": 3.141592653589793
+        },
+        "path": [
+          {
+            "x": -9,
+            "z": -4
+          }
+        ],
+        "speed": 7.5,
+        "reverseSpeed": 3.4
+      }
+    },
+    {
+      "at": 2400,
+      "type": "truck.state",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 held on the approach lane.",
+      "payload": {
+        "truckId": "T-2",
+        "controller": "held",
+        "pose": {
+          "x": -9,
+          "z": -4,
+          "heading": 3.141592653589793
+        }
+      }
+    },
+    {
+      "at": 2450,
+      "type": "radio",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 \u2192 Firefly BLOCKED: Door 3 closed. Stopped on the approach lane.",
+      "payload": {
+        "from": "T-2",
+        "to": "Firefly",
+        "type": "BLOCKED",
+        "text": "Door 3 closed. Stopped on the approach lane."
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 2500,
+      "type": "incident.opened",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "Incident R-2 opened: T-2 \u00b7 Door 3 closed.",
+      "payload": {
+        "id": "R-2",
+        "kind": "door_closed",
+        "truckId": "T-2",
+        "door": 3,
+        "title": "T-2 \u00b7 Door 3 closed",
+        "status": "working",
+        "agentId": "firefly-1"
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 3200,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "inspect_incident(R-2)",
+      "payload": {
+        "tool": "inspect_incident",
+        "input": {
+          "incident_id": "R-2"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 4000,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "T-2 held on the approach lane. Door 3 reported closed.",
+      "payload": {
+        "tool": "inspect_incident",
+        "ok": true,
+        "output": {}
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 4600,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "get_job(J-2)",
+      "payload": {
+        "tool": "get_job",
+        "input": {
+          "job_id": "J-2"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 5300,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Inbound \u00b7 receiving doors only \u00b7 door switch allowed.",
+      "payload": {
+        "tool": "get_job",
+        "ok": true,
+        "output": {}
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 5900,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "list_compatible_doors(J-2)",
+      "payload": {
+        "tool": "list_compatible_doors",
+        "input": {
+          "job_id": "J-2"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 6600,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Free: D2, D4. Excluded: D1 occupied by T-1, D3 closed.",
+      "payload": {
+        "tool": "list_compatible_doors",
+        "ok": true,
+        "output": {
+          "free": [
+            2,
+            4
+          ]
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 7200,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "reserve_door(J-2, Door 4)",
+      "payload": {
+        "tool": "reserve_door",
+        "input": {
+          "job_id": "J-2",
+          "door": 4
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 7300,
+      "type": "radio",
+      "actor": {
+        "kind": "system",
+        "id": "dispatch"
+      },
+      "source_mode": "simulated",
+      "summary": "Dispatch \u2192 T-7 GO_TO: Routine move: Door 4. (fixture: r2-contention)",
+      "payload": {
+        "from": "Dispatch",
+        "to": "T-7",
+        "type": "GO_TO",
+        "text": "Routine move: Door 4. (fixture: r2-contention)"
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 7350,
+      "type": "door.changed",
+      "actor": {
+        "kind": "system",
+        "id": "dispatch"
+      },
+      "source_mode": "simulated",
+      "summary": "Door 4 reserved for J-7 (routine move).",
+      "payload": {
+        "id": 4,
+        "kind": "receiving",
+        "closed": false,
+        "obstruction": false,
+        "occupant": null,
+        "reservedBy": "J-7"
+      }
+    },
+    {
+      "at": 7400,
+      "type": "truck.route",
+      "actor": {
+        "kind": "robot",
+        "id": "T-7"
+      },
+      "source_mode": "simulated",
+      "summary": "T-7 heading to Door 4.",
+      "payload": {
+        "truckId": "T-7",
+        "from": {
+          "x": -15,
+          "z": 9.5,
+          "heading": 3.141592653589793
+        },
+        "path": [
+          {
+            "x": -15,
+            "z": -4
+          },
+          {
+            "x": -3,
+            "z": -4
+          },
+          {
+            "x": -3,
+            "z": -14.75,
+            "reverse": true
+          }
+        ],
+        "speed": 7.5,
+        "reverseSpeed": 3.4
+      }
+    },
+    {
+      "at": 7900,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Rejected: Door 4 was just taken by T-7 (routine move).",
+      "payload": {
+        "tool": "reserve_door",
+        "ok": false,
+        "output": {
+          "conflict": "door_taken",
+          "by": "T-7"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 8500,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "list_compatible_doors(J-2)",
+      "payload": {
+        "tool": "list_compatible_doors",
+        "input": {
+          "job_id": "J-2"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 9200,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Free: D2. Excluded: D1 occupied by T-1, D3 closed, D4 reserved.",
+      "payload": {
+        "tool": "list_compatible_doors",
+        "ok": true,
+        "output": {
+          "free": [
+            2
+          ]
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 9800,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "reserve_door(J-2, Door 2)",
+      "payload": {
+        "tool": "reserve_door",
+        "input": {
+          "job_id": "J-2",
+          "door": 2
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 10500,
+      "type": "door.changed",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Door 2 reserved for J-2.",
+      "payload": {
+        "id": 2,
+        "kind": "receiving",
+        "closed": false,
+        "obstruction": false,
+        "occupant": null,
+        "reservedBy": "J-2"
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 10520,
+      "type": "door.changed",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Door 3 reservation released.",
+      "payload": {
+        "id": 3,
+        "kind": "receiving",
+        "closed": true,
+        "obstruction": false,
+        "occupant": null,
+        "reservedBy": null
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 10550,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Reserved Door 2 for J-2.",
+      "payload": {
+        "tool": "reserve_door",
+        "ok": true,
+        "output": {}
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 11100,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "request_destination(T-2, Door 2)",
+      "payload": {
+        "tool": "request_destination",
+        "input": {
+          "truck_id": "T-2",
+          "door": 2,
+          "request_id": "r-11"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 11150,
+      "type": "radio",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "system",
+      "summary": "Firefly \u2192 T-2 GO_TO: Go to Door 2. (r-11)",
+      "payload": {
+        "from": "Firefly",
+        "to": "T-2",
+        "type": "GO_TO",
+        "text": "Go to Door 2. (r-11)",
+        "requestId": "r-11"
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 11800,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Sent r-11. Waiting for the controller to acknowledge.",
+      "payload": {
+        "tool": "request_destination",
+        "ok": true,
+        "output": {}
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 12900,
+      "type": "radio",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 \u2192 Firefly ACK: r-11 accepted. Moving.",
+      "payload": {
+        "from": "T-2",
+        "to": "Firefly",
+        "type": "ACK",
+        "text": "r-11 accepted. Moving.",
+        "requestId": "r-11"
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 12950,
+      "type": "truck.route",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 moving to Door 2.",
+      "payload": {
+        "truckId": "T-2",
+        "requestId": "r-11",
+        "from": {
+          "x": -9,
+          "z": -4,
+          "heading": 3.141592653589793
+        },
+        "path": [
+          {
+            "x": -15,
+            "z": -4
+          },
+          {
+            "x": -15,
+            "z": -14.75,
+            "reverse": true
+          }
+        ],
+        "speed": 7.5,
+        "reverseSpeed": 3.4
+      }
+    },
+    {
+      "at": 14500,
+      "type": "truck.state",
+      "actor": {
+        "kind": "robot",
+        "id": "T-7"
+      },
+      "source_mode": "simulated",
+      "summary": "T-7 docked at Door 4.",
+      "payload": {
+        "truckId": "T-7",
+        "controller": "docked",
+        "pose": {
+          "x": -3,
+          "z": -14.75,
+          "heading": 0
+        }
+      }
+    },
+    {
+      "at": 14550,
+      "type": "door.changed",
+      "actor": {
+        "kind": "robot",
+        "id": "T-7"
+      },
+      "source_mode": "simulated",
+      "summary": "Door 4 occupied by T-7.",
+      "payload": {
+        "id": 4,
+        "kind": "receiving",
+        "closed": false,
+        "obstruction": false,
+        "occupant": "T-7",
+        "reservedBy": null
+      }
+    },
+    {
+      "at": 17600,
+      "type": "truck.state",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 docked at Door 2.",
+      "payload": {
+        "truckId": "T-2",
+        "controller": "docked",
+        "pose": {
+          "x": -15,
+          "z": -14.75,
+          "heading": 0
+        }
+      }
+    },
+    {
+      "at": 17650,
+      "type": "radio",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "T-2 \u2192 Firefly ARRIVED: Docked at Door 2.",
+      "payload": {
+        "from": "T-2",
+        "to": "Firefly",
+        "type": "ARRIVED",
+        "text": "Docked at Door 2.",
+        "requestId": "r-11"
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 17700,
+      "type": "door.changed",
+      "actor": {
+        "kind": "robot",
+        "id": "T-2"
+      },
+      "source_mode": "simulated",
+      "summary": "Door 2 occupied by T-2.",
+      "payload": {
+        "id": 2,
+        "kind": "receiving",
+        "closed": false,
+        "obstruction": false,
+        "occupant": "T-2",
+        "reservedBy": null
+      }
+    },
+    {
+      "at": 18300,
+      "type": "tool.called",
+      "actor": {
+        "kind": "agent",
+        "id": "firefly-1"
+      },
+      "source_mode": "real-model",
+      "summary": "verify_outcome(J-2)",
+      "payload": {
+        "tool": "verify_outcome",
+        "input": {
+          "job_id": "J-2"
+        }
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 19000,
+      "type": "tool.result",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "T-2 docked at Door 2. Controller confirmed arrival.",
+      "payload": {
+        "tool": "verify_outcome",
+        "ok": true,
+        "output": {}
+      },
+      "incident_id": "R-2"
+    },
+    {
+      "at": 19100,
+      "type": "incident.resolved",
+      "actor": {
+        "kind": "system",
+        "id": "tools"
+      },
+      "source_mode": "system",
+      "summary": "Incident R-2 closed: recovered without supervisor input.",
+      "payload": {
+        "id": "R-2",
+        "kind": "door_closed",
+        "truckId": "T-2",
+        "door": 3,
+        "title": "T-2 \u00b7 Door 3 closed",
+        "status": "resolved",
+        "agentId": "firefly-1",
+        "outcome": "Recovered without supervisor input"
+      },
+      "incident_id": "R-2"
+    }
+  ]
+}
