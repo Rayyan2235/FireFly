@@ -9,7 +9,7 @@ import { AgentRunner } from './agent/runner.ts';
 import { Contention } from './contention.ts';
 import { Dispatch } from './dispatch.ts';
 import { openClearance, openIncident } from './incidents.ts';
-import { DEMO_SCENARIO, injectProblem } from './problems.ts';
+import { DEMO_SCENARIO, injectProblem, withdrawOffersFor } from './problems.ts';
 import { loadFixture, playFixture } from './replay.ts';
 import { seedWorld } from './seed.ts';
 import { Simulator } from './simulator.ts';
@@ -121,9 +121,20 @@ app.post('/api/scenario/demo', (c) => {
  */
 app.post('/api/problems', (c) =>
   act(c, (b) => {
+    const cause = 'reported from the console';
+    // A forklift or a worker drops out: unanswered offers that relied on them are withdrawn, and the agents are told.
+    if (b.kind === 'forklift_down' || b.kind === 'worker_home') {
+      const { equipment, workers } = world.state;
+      const subject = b.kind === 'forklift_down' ? equipment.find((e) => e.id === b.equipment)?.id : workers.find((w) => w.id === b.worker && w.kind === 'person' && w.canDo.includes('clear_obstruction'))?.id;
+      if (!subject) throw new ActionError(b.kind === 'forklift_down' ? 'Need a forklift: F-3 or F-4.' : 'Need a yard worker: sam or noor.');
+      injectProblem(world, b.kind === 'forklift_down' ? { kind: b.kind, equipment: subject } : { kind: b.kind, worker: subject }, cause);
+      const why = b.kind === 'forklift_down' ? `${subject} is out of service.` : `${workers.find((w) => w.id === subject)?.name} went off shift.`;
+      for (const { incidentId, text } of withdrawOffersFor(world, subject, why)) runner.wake(incidentId, text);
+      return;
+    }
     const door = Number(b.door);
-    if ((b.kind !== 'close_door' && b.kind !== 'drop_pallet') || !world.state.doors.some((d) => d.id === door)) throw new ActionError('Need a kind (close_door or drop_pallet) and a door from 1 to 8.');
-    const event = injectProblem(world, { kind: b.kind, door }, 'reported from the console');
+    if ((b.kind !== 'close_door' && b.kind !== 'drop_pallet') || !world.state.doors.some((d) => d.id === door)) throw new ActionError('Need a kind (close_door, drop_pallet, forklift_down or worker_home) and its door, equipment or worker.');
+    const event = injectProblem(world, { kind: b.kind, door }, cause);
     const truckOnItsWay = [...sim.commands.values()].some((cmd) => cmd.door === door && world.state.trucks.find((t) => t.id === cmd.truckId)?.controller === 'moving');
     if (b.kind === 'drop_pallet' && !truckOnItsWay && openClearance(world, door, event.seq)) runner.assign();
   }),
