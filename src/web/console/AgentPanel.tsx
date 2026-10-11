@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUp, ArrowsOutSimple, CaretRight, Check, CircleNotch, Minus, SealCheck, WarningCircle, X } from '@phosphor-icons/react';
 import type { Approval, Incident, Truck } from '../../contract.ts';
+import { displayWorkerNames, serverWorkerNames } from '../workerNames.ts';
 import { checkResponse } from '../api.ts';
 import { ServerAction } from './ServerAction.tsx';
 import { Button } from '../ui/Button.tsx';
@@ -129,17 +130,17 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
       <div className="flex items-center gap-2 text-[13px]">
         <StatusIcon status={status} />
         <span className="font-mono text-[12px] text-fg-3">{run.incidentId}</span>
-        <span className="truncate text-fg-2">{run.title}</span>
+        <span className="truncate text-fg-2">{displayWorkerNames(run.title)}</span>
       </div>
 
       {run.trigger && (
         <div className="step-in mt-4 ml-8">
           <p className="mb-1.5 text-right text-[11.5px] text-fg-4">
-            {run.trigger.from} → {run.trigger.to} · {clock(run.trigger.ts)}
+            {displayWorkerNames(run.trigger.from)} → {displayWorkerNames(run.trigger.to)} · {clock(run.trigger.ts)}
           </p>
           <div className="rounded-xl border border-line bg-raised px-3.5 py-2.5 text-[13.5px] leading-relaxed text-fg">
             <span className="chip chip--attn mr-1.5">{run.trigger.type}</span>
-            {run.trigger.text}
+            {displayWorkerNames(run.trigger.text)}
           </div>
         </div>
       )}
@@ -173,9 +174,9 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
                   <X size={12} className="text-fg" weight="bold" />
                 )}
               </span>
-              <p className="font-mono text-[12px] leading-5 text-fg-2">{s.call}</p>
+              <p className="font-mono text-[12px] leading-5 text-fg-2">{displayWorkerNames(s.call)}</p>
               {s.result && (
-                <p className={`mt-0.5 text-[12.5px] leading-snug ${s.result.ok ? 'text-fg-3' : 'font-medium text-fg'}`}>{s.result.summary}</p>
+                <p className={`mt-0.5 text-[12.5px] leading-snug ${s.result.ok ? 'text-fg-3' : 'font-medium text-fg'}`}>{displayWorkerNames(s.result.summary)}</p>
               )}
             </li>
           ))}
@@ -191,7 +192,7 @@ function RunBody({ run, status, approval }: { run: AgentRun; status: Incident['s
             {verified ? 'Outcome verified' : 'Closed'}
             <span className="ml-auto text-[11.5px] font-normal text-fg-4">{clock(run.resolved.ts)}</span>
           </div>
-          <p className="px-3.5 pt-1.5 pb-3 text-[13px] leading-relaxed text-fg-2">{run.resolved.summary}</p>
+          <p className="px-3.5 pt-1.5 pb-3 text-[13px] leading-relaxed text-fg-2">{displayWorkerNames(run.resolved.summary)}</p>
           {verified && (
             <p className="border-t border-line px-3.5 py-2 font-mono text-[11.5px] text-fg-3">verify_outcome · controller confirmed</p>
           )}
@@ -256,7 +257,7 @@ function Composer({ run }: { run: AgentRun | null }) {
       const res = await fetch('/api/note', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ text: body, incident_id: run?.incidentId ?? null, from: 'maria' }),
+        body: JSON.stringify({ text: serverWorkerNames(body), incident_id: run?.incidentId ?? null, from: 'maria' }),
       });
       await checkResponse(res);
       setText('');

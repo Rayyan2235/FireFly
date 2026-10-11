@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Reliability as RecordReliability } from '../../server/reliability.ts';
+import { displayWorkerNames } from '../workerNames.ts';
 import { checkResponse } from '../api.ts';
 
 export function Reliability({ seq }: { seq: number | undefined }) {
@@ -32,7 +33,7 @@ export function Reliability({ seq }: { seq: number | undefined }) {
         <h3>Recovered</h3>{fields(data.recovered)}
         <h3>Recovery time (s)</h3>{fields(data.time_to_recovery_s)}
         <h3>Supervisor actions</h3>{fields(data.supervisor_actions)}
-        <h3>Worker labor</h3>{data.worker_labor.map(w => <div key={w.worker}><h3>{w.worker}</h3>{fields({ tasks_accepted: w.tasks_accepted, tasks_completed: w.tasks_completed })}</div>)}
+        <h3>Worker labor</h3>{data.worker_labor.map(w => <div key={displayWorkerNames(w.worker)}><h3>{displayWorkerNames(w.worker)}</h3>{fields({ tasks_accepted: w.tasks_accepted, tasks_completed: w.tasks_completed })}</div>)}
         <h3>Controller commands</h3>{fields(data.controller_commands)}
       </details>
     </>}

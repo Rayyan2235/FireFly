@@ -370,3 +370,8 @@ body {
 .r5-reliability dd { font-family:var(--font-mono); flex-shrink:0; }
 .r5-reliability summary { cursor:pointer; padding:12px 0 0; color:var(--color-fg-2); }
 .r5-reliability h3 { border-top:1px solid var(--color-line); padding-top:10px; margin-top:10px; font-size:11px; color:var(--color-fg-2); }
+
+.r5-worker-launcher { margin:16px 8px 0; }
+.r5-worker-launcher>.btn { width:100%; min-height:44px; }
+.r5-worker-launcher .arrow-pill { margin-left:auto; }
+.r5-worker-launcher a { text-decoration:underline; text-underline-offset:3px; color:var(--color-fg); }

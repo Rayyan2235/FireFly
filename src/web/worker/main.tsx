@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Check, Circle, HardHat } from '@phosphor-icons/react';
 import type { Task } from '../../contract.ts';
 import { useStream } from '../useStream.ts';
+import { displayWorkerNames } from '../workerNames.ts';
 import { postAction } from '../api.ts';
 import { Button } from '../ui/Button.tsx';
 import { FireflyMark } from '../console/bits.tsx';
@@ -20,13 +21,13 @@ function WorkerPage() {
   return <main className="worker-page">
     <header className="worker-header"><FireflyMark width={34} /><span>Firefly <small>North Yard · Worker</small></span><span className="worker-live">{connected ? 'Live' : 'Connecting…'}</span></header>
     <nav className="worker-switch glass-nav" aria-label="Worker">
-      {(['sam', 'noor'] as const).map(id => <button key={id} aria-pressed={worker === id} onClick={() => { setWorker(id); setPicked(null); }}>{id === 'sam' ? 'Sam' : 'Noor'}</button>)}
+      {(['sam', 'noor'] as const).map(id => <button key={id} aria-pressed={worker === id} onClick={() => { setWorker(id); setPicked(null); }}>{displayWorkerNames(id)}</button>)}
     </nav>
-    <div className="worker-identity"><HardHat size={20} /><span>{me?.name ?? (worker === 'sam' ? 'Sam' : 'Noor')}<small>{me ? `${me.equipment ?? 'No equipment'} · ${me.status.replaceAll('_', ' ')}` : 'Waiting for the yard snapshot…'}</small></span></div>
+    <div className="worker-identity"><HardHat size={20} /><span>{displayWorkerNames(me?.name ?? worker)}<small>{me ? `${me.equipment ?? 'No equipment'} · ${me.status.replaceAll('_', ' ')}` : 'Waiting for the yard snapshot…'}</small></span></div>
     {!connected && <p className="r5-message" role="status">Reconnecting to the yard. Actions are paused.</p>}
     {tasks.length > 1 && <nav className="worker-task-list" aria-label="Your open tasks">{tasks.map(t => <button key={t.id} aria-pressed={t.id === selected?.id} onClick={() => setPicked(t.id)}>Door {t.door}<small>{t.status}</small></button>)}</nav>}
-    {selected ? <TaskCard key={`${worker}/${selected.id}`} task={selected} worker={worker} connected={connected} summary={taskSummary(events, selected.id)} /> : <section className="worker-card glass"><p className="worker-eyebrow">Your work</p><h1>{world ? 'No open tasks' : 'Connecting to the yard'}</h1><p>{world ? 'New offers will appear here as they arrive.' : 'Waiting for the server’s snapshot.'}</p></section>}
-    {completed && <p className="r5-message" role="status"><Check size={16} />{taskSummary(events, completed.id) ?? `Door ${completed.door} · Task closed`}</p>}
+    {selected ? <TaskCard key={`${worker}/${selected.id}`} task={selected} worker={worker} connected={connected} summary={displayWorkerNames(taskSummary(events, selected.id) ?? '') || undefined} /> : <section className="worker-card glass"><p className="worker-eyebrow">Your work</p><h1>{world ? 'No open tasks' : 'Connecting to the yard'}</h1><p>{world ? 'New offers will appear here as they arrive.' : 'Waiting for the server’s snapshot.'}</p></section>}
+    {completed && <p className="r5-message" role="status"><Check size={16} />{displayWorkerNames(taskSummary(events, completed.id) ?? `Door ${completed.door} · Task closed`)}</p>}
     <footer>Twin mode · simulated trucks<br />Task progress comes from the yard’s work record.</footer>
   </main>;
 }
