@@ -30,6 +30,10 @@ pnpm dev               # server on :8787, console on http://localhost:5173
 - **People's reports are self-reports.** A worker's "people clear" is their report, not independent sensing. The resume procedure is a demo procedure, not a certified safety system.
 - Any numbers shown come from the recorded events of the run on screen. No savings, utilization or customer claims.
 
+## Credits
+
+- Truck model: this work is based on ["18 Wheeler Truck /Tractor Trailer Photogrammetry"](https://sketchfab.com/3d-models/18-wheeler-truck-tractor-trailer-photogrammetry-2208aa30e98f44c3a00549247b33a3ed) by [Air Digital Photogrammetry](https://sketchfab.com/AirDigitalca), licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/). We simplified it (3.4M → 85k triangles), resized its texture, removed the scanned ground and compressed its length to fit the yard (`public/models/truck.glb`).
+
 ## Team
 
 [@usmannsiddiqui](https://github.com/usmannsiddiqui) · [@Rayyan2235](https://github.com/Rayyan2235)

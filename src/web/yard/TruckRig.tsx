@@ -1,7 +1,7 @@
 import { Component, Suspense, useMemo } from 'react';
 import type { MutableRefObject, ReactNode } from 'react';
 import { RoundedBox, useGLTF } from '@react-three/drei';
-import { Box3, MeshPhysicalMaterial, MeshStandardMaterial, Vector3 } from 'three';
+import { Box3, BufferAttribute, MeshPhysicalMaterial, MeshStandardMaterial, Vector3 } from 'three';
 import type { Group, Mesh } from 'three';
 import { trailerSkin } from './textures.ts';
 
@@ -218,6 +218,8 @@ export const TRAILER_GLB = '/models/trailer.glb';
 const GLB_YAW = 0; // set to Math.PI if the model's cab points the wrong way
 const TRAILER_YAW = 0; // set to Math.PI if the trailer's rear doors face the cab
 const TRAILER_LENGTH = 9.16;
+// A whole downloaded rig may run 14 m: docked, its nose stops just short of trucks passing in the lane.
+const SCAN_LENGTH = 14;
 
 /** Clone a loaded model, let it cast shadows, and turn its longest side along z. */
 function prepare(scene: Group, yaw: number) {
@@ -227,6 +229,14 @@ function prepare(scene: Group, yaw: number) {
     if (m.isMesh) {
       m.castShadow = true;
       m.receiveShadow = true;
+      // Optimised scans can arrive without normals; lighting needs them.
+      if (!m.geometry.attributes.normal) m.geometry.computeVertexNormals();
+      // A photogrammetry texture already carries the paint and grime: treat it as a dull, non-metal surface.
+      const mat = m.material as MeshStandardMaterial;
+      if (mat.isMeshStandardMaterial) {
+        mat.metalness = 0;
+        mat.roughness = 0.8;
+      }
     }
   });
   const size = new Box3().setFromObject(root).getSize(new Vector3());
@@ -234,6 +244,61 @@ function prepare(scene: Group, yaw: number) {
   root.rotation.y += yaw;
   root.updateMatrixWorld(true);
   return root;
+}
+
+/**
+ * A photogrammetry scan comes with the patch of ground it was scanned on. Drop every triangle that lies
+ * entirely within the lowest 15 cm, and return the bounds of what is left (the truck itself).
+ */
+function stripGround(root: Group) {
+  root.updateMatrixWorld(true);
+  const v = new Vector3();
+  let minY = Infinity;
+  root.traverse((o) => {
+    const m = o as Mesh;
+    if (!m.isMesh) return;
+    const pos = m.geometry.attributes.position!;
+    for (let i = 0; i < pos.count; i++) minY = Math.min(minY, v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).y);
+  });
+  const cut = minY + 0.15;
+  // The truck's footprint, from everything well above the ground (trailer body, cab).
+  const body = new Box3();
+  root.traverse((o) => {
+    const m = o as Mesh;
+    if (!m.isMesh) return;
+    const pos = m.geometry.attributes.position!;
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+      if (v.y > minY + 1.4) body.expandByPoint(v);
+    }
+  });
+  const inFootprint = (p: Vector3) => p.x > body.min.x - 0.25 && p.x < body.max.x + 0.25 && p.z > body.min.z - 0.4 && p.z < body.max.z + 0.4;
+  const kept = new Box3();
+  root.traverse((o) => {
+    const m = o as Mesh;
+    if (!m.isMesh || !m.geometry.index) return;
+    const pos = m.geometry.attributes.position!;
+    const idx = m.geometry.index.array;
+    const ys = new Float32Array(pos.count);
+    const world: Vector3[] = [];
+    for (let i = 0; i < pos.count; i++) {
+      world[i] = new Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+      ys[i] = world[i]!.y;
+    }
+    const out: number[] = [];
+    for (let t = 0; t < idx.length; t += 3) {
+      const a = idx[t]!, b = idx[t + 1]!, c = idx[t + 2]!;
+      if (ys[a]! < cut && ys[b]! < cut && ys[c]! < cut) continue;
+      // Low and outside the truck's footprint: scanned ground, not truck.
+      const low = minY + 0.7;
+      if (ys[a]! < low && ys[b]! < low && ys[c]! < low && !inFootprint(world[a]!) && !inFootprint(world[b]!) && !inFootprint(world[c]!)) continue;
+      out.push(a, b, c);
+      kept.expandByPoint(world[a]!).expandByPoint(world[b]!).expandByPoint(world[c]!);
+    }
+    m.geometry = m.geometry.clone();
+    m.geometry.setIndex(new BufferAttribute(new Uint32Array(out), 1));
+  });
+  return kept;
 }
 
 /** Scale uniformly, then put the wheels on the ground, centre it, and pin one end in z. */
@@ -266,11 +331,20 @@ function GlbTruck({ color, wheels, hasTrailer }: { color: string; wheels: Mutabl
   const { scene } = useGLTF(TRUCK_GLB);
   const { fitted, tractorOnly } = useMemo(() => {
     const root = prepare(scene, GLB_YAW);
-    const b = new Box3().setFromObject(root);
-    const length = b.max.z - b.min.z;
-    const height = b.max.y - b.min.y;
+    const truck = stripGround(root);
+    const length = truck.max.z - truck.min.z;
+    const height = truck.max.y - truck.min.y;
     const tractorOnly = length / height < 2.6;
-    place(root, tractorOnly ? 3.9 / height : (RIG.front - RIG.rear) / length, tractorOnly ? { front: RIG.front } : { rear: RIG.rear });
+    if (tractorOnly) {
+      place(root, 3.9 / height, { front: RIG.front });
+    } else {
+      // A whole rig keeps its real height and width; only its length is compressed to fit the yard.
+      const k = 3.9 / height;
+      root.scale.set(k, k, SCAN_LENGTH / length);
+      root.updateMatrixWorld(true);
+      const b = new Box3().setFromPoints([truck.min, truck.max].map((p) => p.clone().multiply(root.scale)));
+      root.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, RIG.rear - b.min.z);
+    }
     return { fitted: root, tractorOnly };
   }, [scene]);
   const trailer = hasTrailer ? <GlbTrailer /> : <TruckRig color={color} wheels={wheels} withTractor={false} />;
