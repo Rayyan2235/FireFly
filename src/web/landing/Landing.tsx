@@ -9,7 +9,8 @@ import type { InspectPart } from './Scene.tsx';
 
 const chapters = ['The beginning', 'The yard', 'The exception', 'The truck', 'The agent', 'The shared record', 'Your turn'];
 const details: Record<InspectPart, { title: string; text: string }> = {
-  lidar: { title: 'A view of what’s ahead.', text: 'The roof lidar senses obstacles around the truck. Its own controller stops on a blocked approach and reports BLOCKED. Firefly decides what happens next.' },
+  lidar: { title: 'A view of what’s ahead.', text: 'Roof and side sensors cover the cab’s surroundings. The long trailer blocks their view directly behind it, so reversing needs its own rear coverage.' },
+  rear: { title: 'A clear view behind the trailer.', text: 'A rear-facing sensor sees the pallet in the reversing path. The vehicle controller stops and reports BLOCKED. Firefly coordinates what happens next. This is an illustrative sensor layout.' },
   compute: { title: 'Decisions on the vehicle.', text: 'Onboard compute turns sensor input into local driving decisions. The truck controller acknowledges a requested move before motion starts.' },
   cab: { title: 'A truck on the shared channel.', text: 'The vehicle carries out controller-accepted movement. Firefly coordinates the job across the truck, the supervisor and the people working nearby.' },
 };
@@ -76,7 +77,7 @@ export function Landing() {
     </div>
     <div className="scene-shade" aria-hidden="true" />
     <div className="hotspots" aria-label="Truck inspection hotspots" hidden={beat !== 3}>
-      {parts.map(part => <button key={part} ref={el => { hotspots.current[part] = el; }} className={`hotspot hotspot-${part}`} aria-label={`Inspect ${part}`} aria-pressed={selected === part} onClick={() => select(part)}><span className="hotspot-dot"><Plus size={13} strokeWidth={1.5} aria-hidden="true" /></span><span>{part === 'lidar' ? 'Lidar' : part === 'compute' ? 'Compute' : 'Cab'}</span></button>)}
+      {parts.map(part => <button key={part} ref={el => { hotspots.current[part] = el; }} className={`hotspot hotspot-${part}`} aria-label={`Inspect ${part}`} aria-pressed={selected === part} onClick={() => select(part)}><span className="hotspot-dot"><Plus size={13} strokeWidth={1.5} aria-hidden="true" /></span><span>{part === 'lidar' ? 'Roof lidar' : part === 'rear' ? 'Rear sensor' : part === 'compute' ? 'Compute' : 'Cab'}</span></button>)}
     </div>
     <main id="story">
       {chapters.map((chapter, i) => <section key={chapter} id={i === 0 ? 'beginning' : `chapter-${i}`} className={`chapter chapter-${i}`} aria-label={chapter} ref={el => { sections.current[i] = el; }}>
@@ -89,7 +90,7 @@ export function Landing() {
           </>}
           {i === 2 && <>
             <h2>Then the plan<br />meets a pallet.</h2>
-            <p>A pallet blocks the approach. The truck senses it, stops itself and reports <strong className="inline-signal">BLOCKED</strong>.</p>
+            <p>A pallet blocks the reversing path. Rear sensing detects it; the truck stops itself and reports <strong className="inline-signal">BLOCKED</strong>.</p>
             <p className="supporting">The brakes belong to the truck.<br />What happens next belongs to Firefly.</p>
             <span className="scenario-note">Illustrated scenario · not a live event</span>
           </>}
@@ -97,7 +98,7 @@ export function Landing() {
             <h2>Autonomy,<br />up close.</h2>
             <p>Explore the truck that senses, stops and speaks to the rest of the yard.</p>
             <div className="part-controls" aria-label="Choose a truck component">
-              {parts.map(part => <button key={part} aria-pressed={selected === part} onClick={() => select(part)}>{part === 'lidar' ? 'Lidar' : part === 'compute' ? 'Compute' : 'Cab'}</button>)}
+              {parts.map(part => <button key={part} aria-pressed={selected === part} onClick={() => select(part)}>{part === 'lidar' ? 'Roof lidar' : part === 'rear' ? 'Rear sensor' : part === 'compute' ? 'Compute' : 'Cab'}</button>)}
             </div>
             <div className="part-card" aria-live="polite" aria-atomic="true">
               {selected ? <><h3>{details[selected].title}</h3><p>{details[selected].text}</p><button className="text-action" onClick={() => setSelected(null)}>View the whole truck <ArrowRight size={16} strokeWidth={1.5} aria-hidden="true" /></button></> : <p>Select a sensor hotspot or a component above to take a closer look.</p>}
@@ -126,7 +127,7 @@ export function Landing() {
       </section>)}
     </main>
     <footer className="scene-footer">
-      <span className="illustration-label">Interactive illustration</span>
+      <span className="illustration-label">Illustrative vehicle & sensor layout</span>
       <div className="footer-controls">
         <button className="motion-control" onClick={() => setPaused(value => !value)} disabled={reducedMotion} aria-pressed={motionReduced}>{reducedMotion ? 'Reduced motion on' : paused ? 'Resume motion' : 'Reduce motion'}</button>
         <nav className="chapter-controls" aria-label="Story chapters">

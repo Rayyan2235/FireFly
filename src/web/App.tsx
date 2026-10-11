@@ -2,14 +2,14 @@ import type { FireflyEvent, RadioMessage } from '../contract.ts';
 import { useStream } from './useStream.ts';
 import { Yard } from './Yard.tsx';
 
-// Starting shell for the console. Muhammad owns the screens from here.
+// Live controller data remains the source of truth for the console.
 export function App() {
   const { connected, world, events, routes } = useStream();
   const radio = events.filter((e) => e.type === 'radio').slice(-40).reverse();
   const activity = events.filter((e) => e.type === 'tool.called' || e.type === 'tool.result').slice(-40).reverse();
 
   return (
-    <div className="grid h-screen grid-cols-[minmax(0,1fr)_380px] grid-rows-[52px_minmax(0,1fr)] bg-slate-100 text-slate-900">
+    <div className="console-shell grid h-screen grid-cols-[minmax(0,1fr)_380px] grid-rows-[52px_minmax(0,1fr)] bg-slate-100 text-slate-900">
       <header className="col-span-2 flex items-center gap-3 border-b border-slate-200 bg-white px-4">
         <span className="font-semibold">Firefly</span>
         <span className="text-sm text-slate-500">North Yard</span>
@@ -31,7 +31,8 @@ export function App() {
       <aside className="grid min-h-0 grid-rows-2 border-l border-slate-200 bg-white">
         <section className="min-h-0 overflow-auto border-b border-slate-200">
           <h2 className="sticky top-0 bg-white px-4 py-2 text-xs font-semibold text-slate-600">Agent activity</h2>
-          <ul className="px-4 pb-3 font-mono text-xs">
+          <ul className="px-4 pb-3 text-xs">
+            {activity.length === 0 && <li className="console-empty">Agent calls and results will appear here when work begins.</li>}
             {activity.map((e) => (
               <li key={e.seq} className={`py-1 ${isFail(e) ? 'text-red-700' : ''}`}>
                 {e.type === 'tool.called' ? '→ ' : '  '}
@@ -42,7 +43,8 @@ export function App() {
         </section>
         <section className="min-h-0 overflow-auto">
           <h2 className="sticky top-0 bg-white px-4 py-2 text-xs font-semibold text-slate-600">Radio</h2>
-          <ul className="px-4 pb-3 font-mono text-xs">
+          <ul className="px-4 pb-3 text-xs">
+            {radio.length === 0 && <li className="console-empty">Messages between the yard, vehicles and people will appear here.</li>}
             {radio.map((e) => {
               const m = e.payload as RadioMessage;
               return (

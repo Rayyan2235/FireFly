@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Truck as Vehicle } from './three/Truck.tsx';
+import { YardLighting, YardGround } from './three/YardEnvironment.tsx';
 import { OrbitControls } from '@react-three/drei';
-import { CanvasTexture, SRGBColorSpace } from 'three';
+import { CanvasTexture, SRGBColorSpace, PCFShadowMap } from 'three';
 import type { Group } from 'three';
 import { YARD, doorX } from '../contract.ts';
 import type { Door, Truck } from '../contract.ts';
 import { lerpAngle, poseAt } from './route.ts';
 import type { ActiveRoute } from './useStream.ts';
 
-// Starting point for the 3D yard. Colours are placeholders until the brand is chosen.
-const C = { ground: '#e3e6ea', apron: '#d6dadf', lane: '#c4c9cf', wall: '#f2f3f5', door: '#4a535d', closed: '#d2382f', reserved: '#e3a008', cab: '#2a323b', trailer: '#fafbfc' };
+// Yard materials share the landing’s warm industrial palette.
+const C = { ground: '#c6cec4', apron: '#d0d5c9', lane: '#aab6b0', wall: '#c0cbbd', door: '#536963', closed: '#d2382f', reserved: '#e3a008', cab: '#2a323b', trailer: '#fafbfc' };
 
 function Plane({ w, d, x, z, color, y = 0.01 }: { w: number; d: number; x: number; z: number; color: string; y?: number }) {
   return (
@@ -83,29 +85,31 @@ function TruckModel({ truck, active }: { truck: Truck; active?: ActiveRoute }) {
   });
   return (
     <group ref={ref} position={[truck.pose.x, 0, truck.pose.z]} rotation-y={truck.pose.heading}>
-      <mesh position={[0, 1.95, -1.25]} castShadow>
-        <boxGeometry args={[2.5, 2.9, 7.2]} />
-        <meshStandardMaterial color={C.trailer} />
-      </mesh>
-      <mesh position={[0, 1.6, 3.75]} castShadow>
-        <boxGeometry args={[2.4, 2.4, 2.1]} />
-        <meshStandardMaterial color={C.cab} />
-      </mesh>
+      {/* Uniform display scale fits the controller's existing yard footprint. */}
+      <group scale={0.61}><Vehicle detail={false} color={truck.controller === 'held' ? '#bdaca0' : '#b6c9c2'} /></group>
       {truck.controller === 'held' && <Plane w={3.4} d={10.6} x={0} z={0} color={C.closed} y={0.06} />}
       <Label text={truck.controller === 'held' ? `${truck.id} · held` : truck.id} position={[0, 4.6, 0]} bg={truck.controller === 'held' ? C.closed : '#1f2937'} />
     </group>
   );
 }
 
+function YardCamera() {
+  const { camera, size } = useThree();
+  useLayoutEffect(() => {
+    // Fit the full dock row and parking apron when the canvas becomes portrait.
+    const scale = Math.max(1, 1.35 / (size.width / size.height));
+    camera.position.set(34 * scale, 46 * scale, 62 * scale - 4);
+    camera.lookAt(0, 0, -4);
+  }, [camera, size.width, size.height]);
+  return null;
+}
+
 export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]; routes: Record<string, ActiveRoute> }) {
   return (
-    <Canvas shadows camera={{ position: [0, 90, 78], fov: 30 }}>
-      <color attach="background" args={['#eceef1']} />
-      <hemisphereLight args={['#ffffff', '#cfd5db', 2]} />
-      <directionalLight position={[-34, 70, 40]} intensity={2.4} castShadow shadow-mapSize={[2048, 2048]}>
-        <orthographicCamera attach="shadow-camera" args={[-55, 55, 45, -45, 10, 200]} />
-      </directionalLight>
-      <Plane w={150} d={120} x={0} z={-2} color={C.ground} y={0} />
+    <Canvas shadows={{ type: PCFShadowMap }} dpr={[1,1.5]} camera={{ position: [34, 46, 58], fov: 38 }}>
+      <YardCamera />
+      <YardLighting fog={false} />
+      <YardGround />
       <Plane w={58} d={12.4} x={0} z={-14} color={C.apron} />
       <Plane w={74} d={6} x={0} z={YARD.laneZ} color={C.lane} y={0.02} />
       <Plane w={52} d={13} x={0} z={YARD.parkZ} color={C.apron} />
@@ -119,7 +123,7 @@ export function Yard({ doors, trucks, routes }: { doors: Door[]; trucks: Truck[]
       {trucks.map((t) => (
         <TruckModel key={t.id} truck={t} active={routes[t.id]} />
       ))}
-      <OrbitControls target={[0, 0, -4]} enablePan={false} minPolarAngle={0.35} maxPolarAngle={1.12} minDistance={60} maxDistance={160} />
+      <OrbitControls target={[0, 0, -4]} enablePan={false} minPolarAngle={0.35} maxPolarAngle={1.12} minDistance={45} maxDistance={160} />
     </Canvas>
   );
 }
