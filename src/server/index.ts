@@ -8,7 +8,7 @@ import { claude } from './agent/model.ts';
 import { AgentRunner } from './agent/runner.ts';
 import { Contention } from './contention.ts';
 import { Dispatch } from './dispatch.ts';
-import { openIncident } from './incidents.ts';
+import { openClearance, openIncident } from './incidents.ts';
 import { DEMO_SCENARIO, injectProblem } from './problems.ts';
 import { loadFixture, playFixture } from './replay.ts';
 import { seedWorld } from './seed.ts';
@@ -113,6 +113,26 @@ app.post('/api/scenario/demo', (c) => {
   for (const problem of DEMO_SCENARIO) injectProblem(world, problem, 'demo scenario');
   dispatch.startShift();
   return c.json({ ok: true });
+});
+
+/**
+ * Somebody reports a new problem in the yard (the later pallet in the memory scene).
+ * A pallet with no truck heading for it still gets an incident, so it is cleared before a truck finds it.
+ */
+app.post('/api/problems', (c) =>
+  act(c, (b) => {
+    const door = Number(b.door);
+    if ((b.kind !== 'close_door' && b.kind !== 'drop_pallet') || !world.state.doors.some((d) => d.id === door)) throw new ActionError('Need a kind (close_door or drop_pallet) and a door from 1 to 8.');
+    const event = injectProblem(world, { kind: b.kind, door }, 'reported from the console');
+    const truckOnItsWay = [...sim.commands.values()].some((cmd) => cmd.door === door && world.state.trucks.find((t) => t.id === cmd.truckId)?.controller === 'moving');
+    if (b.kind === 'drop_pallet' && !truckOnItsWay && openClearance(world, door, event.seq)) runner.assign();
+  }),
+);
+
+/** The work record: every event of this shift, in order, exactly as it was recorded. */
+app.get('/api/record', (c) => {
+  c.header('Content-Disposition', 'attachment; filename="firefly-work-record.json"');
+  return c.json({ exported_at: new Date().toISOString(), mode: 'Twin mode · simulated trucks', seq: world.state.seq, events: world.since(0) });
 });
 
 /* ---------- the supervisor (console) ---------- */
