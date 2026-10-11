@@ -2,7 +2,7 @@
 
 Read this first. It is the one source of rules and contract for everyone working in this repo, human or agent. **Plans here are provisional and will change as we build. The non-negotiable rules don't.**
 
-Product context for design work: [`PRODUCT.md`](PRODUCT.md).
+Product context for design work: [`PRODUCT.md`](PRODUCT.md). Locked decisions: [`docs/adr/`](docs/adr/README.md) — one-way copies from the planning notes; don't edit them here.
 
 ## What we're building
 
